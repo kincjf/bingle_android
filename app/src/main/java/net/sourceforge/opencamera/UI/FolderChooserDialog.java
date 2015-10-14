@@ -1,15 +1,5 @@
 package net.sourceforge.opencamera.UI;
 
-import net.sourceforge.opencamera.MyDebug;
-import net.sourceforge.opencamera.PreferenceKeys;
-import net.sourceforge.opencamera.R;
-import net.sourceforge.opencamera.StorageUtils;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -30,6 +20,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import net.sourceforge.opencamera.MyDebug;
+import net.sourceforge.opencamera.PreferenceKeys;
+import net.sourceforge.opencamera.R;
+import net.sourceforge.opencamera.StorageUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class FolderChooserDialog extends DialogFragment {
 	private static final String TAG = "FolderChooserFragment";
@@ -107,9 +107,11 @@ public class FolderChooserDialog extends DialogFragment {
 	        .setNeutralButton(R.string.new_folder, null) // we set the listener in onShowListener, so we can prevent the dialog from closing
 	        .setNegativeButton(android.R.string.cancel, null)
 	        .create();
+		//저장 폴더 설정
 		folder_dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 		    @Override
 		    public void onShow(DialogInterface dialog_interface) {
+				//폴더변경 버튼
 		        Button b_positive = folder_dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 		        b_positive.setOnClickListener(new View.OnClickListener() {
 		            @Override
@@ -211,6 +213,7 @@ public class FolderChooserDialog extends DialogFragment {
     	return false;
     }
 
+	//해당 폴더 사용
     private boolean useFolder() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "useFolder");
@@ -226,6 +229,7 @@ public class FolderChooserDialog extends DialogFragment {
         	}
 			if( MyDebug.LOG )
 				Log.d(TAG, "new_save_location: " + new_save_location);
+			Log.d(TAG, "new_save_location: " + new_save_location);
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 			SharedPreferences.Editor editor = sharedPreferences.edit();
 			editor.putString(PreferenceKeys.getSaveLocationPreferenceKey(), new_save_location);

@@ -1,19 +1,18 @@
 package net.sourceforge.opencamera;
 
-import net.sourceforge.opencamera.CameraController.CameraController;
-import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
-import net.sourceforge.opencamera.Preview.Preview;
-import net.sourceforge.opencamera.UI.FolderChooserDialog;
-import net.sourceforge.opencamera.UI.PopupView;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -34,19 +33,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -69,6 +55,20 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.ZoomControls;
+
+import net.sourceforge.opencamera.CameraController.CameraController;
+import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
+import net.sourceforge.opencamera.Preview.Preview;
+import net.sourceforge.opencamera.UI.FolderChooserDialog;
+import net.sourceforge.opencamera.UI.PopupView;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
@@ -1936,6 +1936,12 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "clickedShare");
 		applicationInterface.shareLastImage();
     }
+	public void camStart(View view) {
+		if( MyDebug.LOG )
+			Log.d(TAG, "camStart");
+		Log.i(TAG,"CAM START");
+		applicationInterface.chooseFolder();
+	}
 
     public void clickedTrash(View view) {
 		if( MyDebug.LOG )
