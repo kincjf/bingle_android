@@ -147,9 +147,8 @@
         android:padding="10dp"
         android:scaleType="fitCenter"
         android:contentDescription="@string/trash"
-        android:src="@drawable/trash"
+        android:src="@drawable/focus_mode_fixed"
         android:onClick="clickedTrash"
-        android:visibility="gone"
         />
 
     <ImageButton
@@ -161,7 +160,17 @@
         android:contentDescription="@string/share"
         android:src="@drawable/share"
         android:onClick="clickedShare"
-        android:visibility="gone"
+
+        />
+    <ImageButton
+        android:id="@+id/tmp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/share"
+        android:src="@drawable/focus_mode_manual"
+        android:onClick="camStart"
         />
 
     <SeekBar

@@ -1,22 +1,5 @@
 package net.sourceforge.opencamera;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
-import net.sourceforge.opencamera.CameraController.CameraController;
-import net.sourceforge.opencamera.Preview.ApplicationInterface;
-import net.sourceforge.opencamera.Preview.Preview;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -30,9 +13,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Paint.Align;
 import android.location.Location;
 import android.media.CamcorderProfile;
 import android.media.ExifInterface;
@@ -54,6 +37,24 @@ import android.view.Surface;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.Toast;
+
+import net.sourceforge.opencamera.CameraController.CameraController;
+import net.sourceforge.opencamera.Preview.ApplicationInterface;
+import net.sourceforge.opencamera.Preview.Preview;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MyApplicationInterface implements ApplicationInterface {
 	private static final String TAG = "MyApplicationInterface";
@@ -104,6 +105,9 @@ public class MyApplicationInterface implements ApplicationInterface {
 	private int cameraId = 0;
 	private int zoom_factor = 0;
 	private float focus_distance = 0.0f;
+
+	private File current_folder = null;
+
 
 	MyApplicationInterface(MainActivity main_activity, Bundle savedInstanceState) {
 		if( MyDebug.LOG )
@@ -2774,7 +2778,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 			preview.startCameraPreview();
 		}
 	}
-	
+
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	void trashLastImage() {
 		Preview preview  = main_activity.getPreview();
@@ -2829,6 +2833,46 @@ public class MyApplicationInterface implements ApplicationInterface {
 	}
 
 	// for testing
+
+	private boolean canWrite() {
+		try {
+			if( this.current_folder != null && this.current_folder.canWrite() )
+				return true;
+		}
+		catch(Exception e) {
+		}
+		return false;
+	}
+	//해당 폴더 사용
+	public boolean chooseFolder() {
+		if( MyDebug.LOG )
+			Log.d(TAG, "useFolder");
+		String folderName = "/storage/emulated/0/DCIM/OpenCamera/"+System.currentTimeMillis ( );
+		current_folder=new File(folderName);
+		if( !current_folder.exists() )
+			current_folder.mkdir();
+		if( canWrite() ) {
+			File base_folder = StorageUtils.getBaseFolder();
+			String new_save_location = current_folder.getAbsolutePath();
+			if( current_folder.getParentFile() != null && current_folder.getParentFile().equals(base_folder) ) {
+				if( MyDebug.LOG )
+					Log.d(TAG, "parent folder is base folder");
+				new_save_location = current_folder.getName();
+			}
+			if( MyDebug.LOG )
+				Log.d(TAG, "new_save_location: " + new_save_location);
+			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+			SharedPreferences.Editor editor = sharedPreferences.edit();
+
+			editor.putString(PreferenceKeys.getSaveLocationPreferenceKey(), new_save_location);
+			editor.apply();
+			return true;
+		}
+		else {
+			Toast.makeText(getContext(), R.string.cant_write_folder, Toast.LENGTH_SHORT).show();
+		}
+		return false;
+	}
 
 	public boolean hasThumbnailAnimation() {
 		return this.thumbnail_anim;
