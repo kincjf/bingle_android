@@ -119,5 +119,11 @@ public interface ApplicationInterface {
 	// callbacks
 	void onDrawPreview(Canvas canvas);
 	boolean onPictureTaken(byte [] data);
-	boolean chooseFolder();
+
+
+	boolean chooseFolder();//새로운 사진들이 담길 폴더를 생성한다
+	String getSaveFolder();
+	boolean compressFolder();
+	boolean folderDelete(String dirPath);
+
 }
