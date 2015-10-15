@@ -2873,6 +2873,50 @@ public class MyApplicationInterface implements ApplicationInterface {
 		}
 		return false;
 	}
+	public String getSaveFolder(){
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+
+		String path = sharedPreferences.getString(PreferenceKeys.getSaveLocationPreferenceKey(), "");
+		return path;
+	}
+
+	public boolean compressFolder(){
+		String folderPath = getSaveFolder();
+		String zipDir = "/storage/emulated/0/DCIM/OpenCamera/progressing/";
+		File f = new File(folderPath);
+		File zipFolder = new File(zipDir);
+		String zipName = f.getName();
+
+		if( !zipFolder.exists())
+			zipFolder.mkdir();
+
+		try {
+			ZipUtils.zip(folderPath , zipDir+zipName+".zip");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		folderDelete(folderPath);
+		return true;
+
+	}
+	public boolean folderDelete(String dirPath){
+			File dir = new File(dirPath);
+
+			String[] children = dir.list();
+			if (children != null) {
+				for (int i=0; i<children.length; i++) {
+					String filename = children[i];
+					File f = new File(dirPath+"/" + filename);
+					Log.i(TAG,dirPath + filename);
+					if (f.exists()) {
+						f.delete();
+					}
+				}//for
+			}//if
+		dir.delete();
+	return true;
+	}
 
 	public boolean hasThumbnailAnimation() {
 		return this.thumbnail_anim;

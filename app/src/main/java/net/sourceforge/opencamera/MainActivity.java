@@ -54,6 +54,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 import android.widget.ZoomControls;
 
 import net.sourceforge.opencamera.CameraController.CameraController;
@@ -111,6 +112,7 @@ public class MainActivity extends Activity {
 	public boolean test_have_angle = false;
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
+	int camCount=1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -964,8 +966,21 @@ public class MainActivity extends Activity {
     public void clickedTakePhoto(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTakePhoto");
-    	this.takePicture();
-    }
+		if(camCount%3==0){
+			Toast.makeText(getApplicationContext(),"3장 배수 찍었어요 압축할게요",Toast.LENGTH_SHORT).show();
+			boolean res = applicationInterface.compressFolder();
+			if(res){
+				Toast.makeText(getApplicationContext(),"압축 완료",Toast.LENGTH_SHORT).show();
+
+			}
+
+		}else {
+			this.takePicture();
+		}
+		camCount++;
+
+
+	}
 
     public void clickedSwitchCamera(View view) {
 		if( MyDebug.LOG )
@@ -2001,6 +2016,7 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "clickedShare");
 		applicationInterface.shareLastImage();
     }
+	//카메라 촬영 시작- 디렉토리를 설정함
 	public void camStart(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "camStart");
