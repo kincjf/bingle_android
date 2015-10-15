@@ -51,6 +51,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -61,6 +62,8 @@ import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,6 +91,8 @@ public class MainActivity extends Activity {
     private boolean screen_is_locked = false;
     private Map<Integer, Bitmap> preloaded_bitmap_resources = new Hashtable<Integer, Bitmap>();
     private PopupView popup_view = null;
+
+	private ImageView imageView = null;
 
     private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
@@ -1738,6 +1743,11 @@ public class MainActivity extends Activity {
 				// REVIEW_ACTION means we can view video files without autoplaying
 				Intent intent = new Intent(REVIEW_ACTION, uri);
 				this.startActivity(intent);
+				//imageView = (ImageView) findViewById(R.id.imageView);
+				//Picasso.with(this)
+				//		.load("http://elandstyle.cafe24.com/wp/wp-content/uploads/2014/02/roem06-500x261.jpg")
+				//		//.load(uri)
+				//		.into(imageView);
 			}
 			catch(ActivityNotFoundException e) {
 				if( MyDebug.LOG )

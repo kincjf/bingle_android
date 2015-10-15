@@ -83,7 +83,7 @@
         android:contentDescription="@string/gallery"
         android:src="@drawable/gallery"
         android:onClick="clickedGallery"
-        />
+        android:nestedScrollingEnabled="true" />
 
     <ImageButton
         android:id="@+id/popup"
@@ -104,6 +104,14 @@
         android:scaleType="fitCenter"
         android:contentDescription="@string/exposure_lock"
         android:onClick="clickedExposureLock"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         />
 
     <ImageButton
@@ -234,6 +242,8 @@
         android:id="@+id/hide_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
-    
+        >
+
+    </ScrollView>
+
 </RelativeLayout>
