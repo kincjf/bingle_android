@@ -1756,6 +1756,7 @@ public class MainActivity extends Activity {
 			final String REVIEW_ACTION = "com.android.camera.action.REVIEW";
 			try {
 				// REVIEW_ACTION means we can view video files without autoplaying
+				//StorageUtils.Media media = applicationInterface.getStorageUtils().getAllImage();
 				Intent intent = new Intent(REVIEW_ACTION, uri);
 				this.startActivity(intent);
 				//imageView = (ImageView) findViewById(R.id.imageView);
