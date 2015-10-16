@@ -1,13 +1,5 @@
 package net.sourceforge.opencamera.CameraController;
 
-import net.sourceforge.opencamera.MyDebug;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -39,6 +31,14 @@ import android.util.Range;
 import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+
+import net.sourceforge.opencamera.MyDebug;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class CameraController2 extends CameraController {
@@ -136,6 +136,8 @@ public class CameraController2 extends CameraController {
 			setAERegions(builder);
 			setFaceDetectMode(builder);
 			setVideoStabilization(builder);
+
+
 			/*builder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
 			builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 			builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);

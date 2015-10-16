@@ -1,8 +1,5 @@
 package net.sourceforge.opencamera.Preview;
 
-import java.io.File;
-import java.io.IOException;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.location.Location;
@@ -10,6 +7,9 @@ import android.media.CamcorderProfile;
 import android.net.Uri;
 import android.util.Pair;
 import android.view.MotionEvent;
+
+import java.io.File;
+import java.io.IOException;
 
 public interface ApplicationInterface {
 	final int VIDEOMETHOD_FILE = 0; // video will be saved to a file
@@ -119,4 +119,11 @@ public interface ApplicationInterface {
 	// callbacks
 	void onDrawPreview(Canvas canvas);
 	boolean onPictureTaken(byte [] data);
+
+
+	boolean chooseFolder();//새로운 사진들이 담길 폴더를 생성한다
+	String getSaveFolder();
+	boolean compressFolder();
+	boolean folderDelete(String dirPath);
+
 }

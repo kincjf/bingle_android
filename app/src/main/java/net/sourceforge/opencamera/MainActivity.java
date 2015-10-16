@@ -1,19 +1,18 @@
 package net.sourceforge.opencamera;
 
-import net.sourceforge.opencamera.CameraController.CameraController;
-import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
-import net.sourceforge.opencamera.Preview.Preview;
-import net.sourceforge.opencamera.UI.FolderChooserDialog;
-import net.sourceforge.opencamera.UI.PopupView;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -34,19 +33,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -65,10 +51,28 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 import android.widget.ZoomControls;
+
+import net.sourceforge.opencamera.CameraController.CameraController;
+import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
+import net.sourceforge.opencamera.Preview.Preview;
+import net.sourceforge.opencamera.UI.FolderChooserDialog;
+import net.sourceforge.opencamera.UI.PopupView;
+
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
@@ -88,6 +92,8 @@ public class MainActivity extends Activity {
     private boolean screen_is_locked = false;
     private Map<Integer, Bitmap> preloaded_bitmap_resources = new Hashtable<Integer, Bitmap>();
     private PopupView popup_view = null;
+
+	private ImageView imageView = null;
 
     private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
@@ -111,6 +117,7 @@ public class MainActivity extends Activity {
 	public boolean test_have_angle = false;
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
+	int camCount=1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -964,8 +971,21 @@ public class MainActivity extends Activity {
     public void clickedTakePhoto(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTakePhoto");
-    	this.takePicture();
-    }
+		if(camCount%3==0){
+			Toast.makeText(getApplicationContext(),"3장 배수 찍었어요 압축할게요",Toast.LENGTH_SHORT).show();
+			boolean res = applicationInterface.compressFolder();
+			if(res){
+				Toast.makeText(getApplicationContext(),"압축 완료",Toast.LENGTH_SHORT).show();
+
+			}
+
+		}else {
+			this.takePicture();
+		}
+		camCount++;
+
+
+	}
 
     public void clickedSwitchCamera(View view) {
 		if( MyDebug.LOG )
@@ -1627,6 +1647,7 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "time to update gallery icon: " + (System.currentTimeMillis() - time_s));
     }
 
+	/* 기존 opencamera 소스파일
     public void clickedGallery(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedGallery");
@@ -1689,6 +1710,75 @@ public class MainActivity extends Activity {
 			}
 		}
     }
+	*/
+
+	public void clickedGallery(View view) {
+		if( MyDebug.LOG )
+			Log.d(TAG, "clickedGallery");
+		//Intent intent = new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		Uri uri = applicationInterface.getStorageUtils().getLastMediaScanned();
+		if( uri == null ) {
+			if( MyDebug.LOG )
+				Log.d(TAG, "go to latest media");
+			StorageUtils.Media media = applicationInterface.getStorageUtils().getLatestMedia();
+			if( media != null ) {
+				uri = media.uri;
+			}
+		}
+
+		if( uri != null ) {
+			// check uri exists
+			if( MyDebug.LOG )
+				Log.d(TAG, "found most recent uri: " + uri);
+			try {
+				ContentResolver cr = getContentResolver();
+				ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
+				if( pfd == null ) {
+					if( MyDebug.LOG )
+						Log.d(TAG, "uri no longer exists (1): " + uri);
+					uri = null;
+				}
+				pfd.close();
+			}
+			catch(IOException e) {
+				if( MyDebug.LOG )
+					Log.d(TAG, "uri no longer exists (2): " + uri);
+				uri = null;
+			}
+		}
+		if( uri == null ) {
+			uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+		}
+		if( !is_test ) {
+			// don't do if testing, as unclear how to exit activity to finish test (for testGallery())
+			if( MyDebug.LOG )
+				Log.d(TAG, "launch uri:" + uri);
+			final String REVIEW_ACTION = "com.android.camera.action.REVIEW";
+			try {
+				// REVIEW_ACTION means we can view video files without autoplaying
+				Intent intent = new Intent(REVIEW_ACTION, uri);
+				this.startActivity(intent);
+				//imageView = (ImageView) findViewById(R.id.imageView);
+				//Picasso.with(this)
+				//		.load("http://elandstyle.cafe24.com/wp/wp-content/uploads/2014/02/roem06-500x261.jpg")
+				//		//.load(uri)
+				//		.into(imageView);
+			}
+			catch(ActivityNotFoundException e) {
+				if( MyDebug.LOG )
+					Log.d(TAG, "REVIEW_ACTION intent didn't work, try ACTION_VIEW");
+				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+				// from http://stackoverflow.com/questions/11073832/no-activity-found-to-handle-intent - needed to fix crash if no gallery app installed
+				//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("blah")); // test
+				if( intent.resolveActivity(getPackageManager()) != null ) {
+					this.startActivity(intent);
+				}
+				else{
+					preview.showToast(null, R.string.no_gallery_app);
+				}
+			}
+		}
+	}
 
     private void updateFolderHistory() {
 		String folder_name = applicationInterface.getStorageUtils().getSaveLocation();
@@ -1936,6 +2026,13 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "clickedShare");
 		applicationInterface.shareLastImage();
     }
+	//카메라 촬영 시작- 디렉토리를 설정함
+	public void camStart(View view) {
+		if( MyDebug.LOG )
+			Log.d(TAG, "camStart");
+		Log.i(TAG,"CAM START");
+		applicationInterface.chooseFolder();
+	}
 
     public void clickedTrash(View view) {
 		if( MyDebug.LOG )
