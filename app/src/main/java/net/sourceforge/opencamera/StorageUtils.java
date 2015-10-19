@@ -583,14 +583,12 @@ public class StorageUtils {
     }
 
 	//get all image
-	Media getAllImage() {
+	String[] getAllImage() {
 		if( MyDebug.LOG )
-			Log.d(TAG, "getLatestMedia: images");
-		Media media = null;
+			Log.d(TAG, "getAllMedia: images");
 		Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 		//Uri query = baseUri.buildUpon().appendQueryParameter("limit", "1").build();
 		Uri query = baseUri;
-		int image_count = 0;
 		final int column_id_c = 0;
 		final int column_date_taken_c = 1;
 		final int column_data_c = 2;
@@ -598,6 +596,8 @@ public class StorageUtils {
 		String [] projection = new String[] {ImageColumns._ID, ImageColumns.DATE_TAKEN, ImageColumns.DATA, ImageColumns.ORIENTATION};
 		String selection = ImageColumns.MIME_TYPE + "='image/jpeg'";
 		String order = ImageColumns.DATE_TAKEN + " DESC," + ImageColumns._ID + " DESC";
+		String [] image_list = null;
+		String strImage;
 		Cursor cursor = null;
 		try {
 			cursor = context.getContentResolver().query(query, projection, selection, null, order);
@@ -605,48 +605,33 @@ public class StorageUtils {
 				if( MyDebug.LOG )
 					Log.d(TAG, "found: " + cursor.getCount());
 				// now sorted in order of date - scan to most recent one in the Open Camera save folder
-				boolean found = false;
+
+				int i = 0;
+				image_list = new String[cursor.getCount()];
+				int nCol = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 				File save_folder = isUsingSAF() ? null : getImageFolder();
 				String save_folder_string = isUsingSAF() ? null : save_folder.getAbsolutePath() + File.separator;
 				if( MyDebug.LOG )
 					Log.d(TAG, "save_folder_string: " + save_folder_string);
 				do {
 					String path = cursor.getString(column_data_c);
+
 					if( MyDebug.LOG )
 						Log.d(TAG, "path: " + path);
 					// path may be null on Android 4.4!: http://stackoverflow.com/questions/3401579/get-filename-and-path-from-uri-from-mediastore
 					// and if isUsingSAF(), it's not clear how we can get the real path, or otherwise tell if an item is a subset of the SAF treeUri
-					if( isUsingSAF() || (path != null && path.contains(save_folder_string) ) ) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "found most recent in Open Camera folder");
-						// we filter files with dates in future, in case there exists an image in the folder with incorrect datestamp set to the future
-						// we allow up to 2 days in future, to avoid risk of issues to do with timezone etc
-						long date = cursor.getLong(column_date_taken_c);
-						long current_time = System.currentTimeMillis();
-						image_count = cursor.getCount();
-						if( date > current_time + 172800000 ) {
-							if( MyDebug.LOG )
-								Log.d(TAG, "skip date in the future!");
-						}
-						else {
-							found = true;
-							break;
-						}
+
+				//	image_list[i] = path;
+				//	i++;
+
+					strImage = cursor.getString(nCol);
+					if (strImage != null && strImage.startsWith("/storage/emulated/0/DCIM/OpenCamera/")){
+						Log.d("test","img is " + strImage);
+
+						image_list[i] = strImage;
+						i++;
 					}
 				} while( cursor.moveToNext() );
-
-				if( !found ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "can't find suitable in Open Camera folder, so just go with most recent");
-					cursor.moveToFirst();
-				}
-				long id = cursor.getLong(column_id_c);
-				long date = cursor.getLong(column_date_taken_c);
-				int orientation = cursor.getInt(column_orientation_c);
-				Uri uri = ContentUris.withAppendedId(baseUri, id);
-				if( MyDebug.LOG )
-					Log.d(TAG, "found most recent uri for images : " + uri);
-				media = new Media(id, false, uri, date, orientation);
 			}
 		}
 		catch(SQLiteException e) {
@@ -660,6 +645,6 @@ public class StorageUtils {
 				cursor.close();
 			}
 		}
-		return media;
+		return image_list;
 	}
 }

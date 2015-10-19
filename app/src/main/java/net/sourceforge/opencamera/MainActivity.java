@@ -1715,68 +1715,26 @@ public class MainActivity extends Activity {
 	public void clickedGallery(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedGallery");
-		//Intent intent = new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		Uri uri = applicationInterface.getStorageUtils().getLastMediaScanned();
-		if( uri == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "go to latest media");
-			StorageUtils.Media media = applicationInterface.getStorageUtils().getLatestMedia();
-			if( media != null ) {
-				uri = media.uri;
-			}
-		}
 
-		if( uri != null ) {
-			// check uri exists
-			if( MyDebug.LOG )
-				Log.d(TAG, "found most recent uri: " + uri);
-			try {
-				ContentResolver cr = getContentResolver();
-				ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-				if( pfd == null ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "uri no longer exists (1): " + uri);
-					uri = null;
-				}
-				pfd.close();
-			}
-			catch(IOException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "uri no longer exists (2): " + uri);
-				uri = null;
-			}
-		}
-		if( uri == null ) {
-			uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-		}
 		if( !is_test ) {
-			// don't do if testing, as unclear how to exit activity to finish test (for testGallery())
-			if( MyDebug.LOG )
-				Log.d(TAG, "launch uri:" + uri);
-			final String REVIEW_ACTION = "com.android.camera.action.REVIEW";
+
 			try {
 				// REVIEW_ACTION means we can view video files without autoplaying
-				//StorageUtils.Media media = applicationInterface.getStorageUtils().getAllImage();
-				Intent intent = new Intent(REVIEW_ACTION, uri);
-				this.startActivity(intent);
-				//imageView = (ImageView) findViewById(R.id.imageView);
-				//Picasso.with(this)
-				//		.load("http://elandstyle.cafe24.com/wp/wp-content/uploads/2014/02/roem06-500x261.jpg")
-				//		//.load(uri)
-				//		.into(imageView);
+				String[] image_list = applicationInterface.getStorageUtils().getAllImage();
+				//Intent intent = new Intent(REVIEW_ACTION, uri);
+				//this.startActivity(intent);
+				imageView = (ImageView) findViewById(R.id.imageView);
+
+					Picasso.with(this)
+							.load(image_list[0])	//.load(uri)
+							.into(imageView);
+
+
 			}
 			catch(ActivityNotFoundException e) {
 				if( MyDebug.LOG )
 					Log.d(TAG, "REVIEW_ACTION intent didn't work, try ACTION_VIEW");
-				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-				// from http://stackoverflow.com/questions/11073832/no-activity-found-to-handle-intent - needed to fix crash if no gallery app installed
-				//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("blah")); // test
-				if( intent.resolveActivity(getPackageManager()) != null ) {
-					this.startActivity(intent);
-				}
-				else{
-					preview.showToast(null, R.string.no_gallery_app);
-				}
+
 			}
 		}
 	}
