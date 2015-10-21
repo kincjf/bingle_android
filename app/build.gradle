@@ -23,11 +23,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:22.0.0'
-<<<<<<< Updated upstream
     compile 'com.squareup.picasso:picasso:2.5.2'
-=======
-    compile 'org.apache.httpcomponents:httpmime:4.0.1'
-    compile 'org.apache.httpcomponents:httpclient:4.3.1'
 
->>>>>>> Stashed changes
+
 }
