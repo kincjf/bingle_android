@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
@@ -1725,11 +1726,13 @@ public class MainActivity extends Activity {
 				//Intent intent = new Intent(REVIEW_ACTION, uri);
 				//this.startActivity(intent);
 				imageView = (ImageView) findViewById(R.id.imageView);
+				int i = 0;
+				//File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/" + "pastel"), "suji.jpg");
 
+					File file = new File(image_list[0]);
 					Picasso.with(this)
-							.load(image_list[0])	//.load(uri)
+							.load(file)    //.load(uri)
 							.into(imageView);
-
 
 			}
 			catch(ActivityNotFoundException e) {

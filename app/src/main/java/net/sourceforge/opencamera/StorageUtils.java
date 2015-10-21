@@ -625,7 +625,7 @@ public class StorageUtils {
 				//	i++;
 
 					strImage = cursor.getString(nCol);
-					if (strImage != null && strImage.startsWith("/storage/emulated/0/DCIM/OpenCamera/")){
+					if (strImage != null && strImage.startsWith("/storage/emulated/0/Pictures/pastel/")){
 						Log.d("test","img is " + strImage);
 
 						image_list[i] = strImage;
