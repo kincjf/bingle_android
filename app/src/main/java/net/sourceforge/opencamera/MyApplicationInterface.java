@@ -2900,7 +2900,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		return true;
 
 	}
-	public boolean folderDelete(String dirPath){
+	public boolean folderDelete(String dirPath) {
 			File dir = new File(dirPath);
 
 			String[] children = dir.list();

@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.SoundPool;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -2598,5 +2599,59 @@ public class MainActivity extends Activity {
     
 	public boolean hasThumbnailAnimation() {
 		return this.applicationInterface.hasThumbnailAnimation();
+	}
+
+	class Async extends AsyncTask<Integer,Integer,Integer>{
+
+		@Override
+		protected Integer doInBackground(Integer... integers) {
+//			HttpClient httpclient = new DefaultHttpClient();
+//
+//			HttpPost postRequest;
+//			MultipartEntity reqEntity;
+//			FileBody fileBody;
+//
+//			postRequest = new HttpPost(serverUrl);
+//			postRequest.addHeader("Content-Type", "application/zip");
+//			postRequest
+//					.addHeader(
+//							"X-BRB-Custom",
+//							"veT14BAttolUAgiosgaultfOrTH93TAD30sag48feYbUlk45COInneBcaDegEARhowOfAYs10HELpsmump23");
+//
+//			File zipFile = new File(Zip);
+//			try
+//			{
+//				reqEntity = new MultipartEntity();
+//
+//				fileBody = new FileBody(zipFile, "application/zip");
+//				reqEntity.addPart("fileupload", fileBody);
+//
+//				postRequest.setEntity(reqEntity);
+//
+//				HttpResponse response = httpclient.execute(postRequest);
+//
+//				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
+//				{
+//					httpclient.getConnectionManager().shutdown();
+//					return deleteFiles();
+//				}
+//
+//			}
+//			catch (UnsupportedEncodingException e)
+//			{
+//				e.printStackTrace();
+//			}
+//			catch (ClientProtocolException e)
+//			{
+//				e.printStackTrace();
+//			}
+//			catch (IOException e)
+//			{
+//				e.printStackTrace();
+//			}
+//
+//			httpclient.getConnectionManager().shutdown();
+			return null;
+		}
 	}
 }
