@@ -29,9 +29,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -67,7 +65,11 @@ import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -297,6 +299,8 @@ public class MainActivity extends Activity {
 
 		if( MyDebug.LOG )
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
+
+
 	}
 	
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -367,6 +371,7 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+
 		return true;
 	}
 	
@@ -1990,14 +1995,17 @@ public class MainActivity extends Activity {
 	public void camStart(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "camStart");
-		Log.i(TAG,"CAM START");
+		Log.i(TAG, "CAM START");
 		applicationInterface.chooseFolder();
+		Http transfer = new Http();
+		transfer.execute("");
 	}
 
     public void clickedTrash(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTrash");
 		applicationInterface.trashLastImage();
+
     }
 
     private void takePicture() {
@@ -2601,57 +2609,52 @@ public class MainActivity extends Activity {
 		return this.applicationInterface.hasThumbnailAnimation();
 	}
 
-	class Async extends AsyncTask<Integer,Integer,Integer>{
+	class Http extends AsyncTask<String,Integer,Integer>{
 
 		@Override
-		protected Integer doInBackground(Integer... integers) {
-//			HttpClient httpclient = new DefaultHttpClient();
-//
-//			HttpPost postRequest;
-//			MultipartEntity reqEntity;
-//			FileBody fileBody;
-//
-//			postRequest = new HttpPost(serverUrl);
-//			postRequest.addHeader("Content-Type", "application/zip");
-//			postRequest
-//					.addHeader(
-//							"X-BRB-Custom",
-//							"veT14BAttolUAgiosgaultfOrTH93TAD30sag48feYbUlk45COInneBcaDegEARhowOfAYs10HELpsmump23");
-//
-//			File zipFile = new File(Zip);
-//			try
-//			{
-//				reqEntity = new MultipartEntity();
-//
-//				fileBody = new FileBody(zipFile, "application/zip");
-//				reqEntity.addPart("fileupload", fileBody);
-//
-//				postRequest.setEntity(reqEntity);
-//
-//				HttpResponse response = httpclient.execute(postRequest);
-//
-//				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
-//				{
-//					httpclient.getConnectionManager().shutdown();
-//					return deleteFiles();
-//				}
-//
-//			}
-//			catch (UnsupportedEncodingException e)
-//			{
-//				e.printStackTrace();
-//			}
-//			catch (ClientProtocolException e)
-//			{
-//				e.printStackTrace();
-//			}
-//			catch (IOException e)
-//			{
-//				e.printStackTrace();
-//			}
-//
-//			httpclient.getConnectionManager().shutdown();
+		protected Integer doInBackground(String... protocol) {
+
+			getImage("http://img.v3.news.zdn.vn/w660/Uploaded/nphpayp/2014_05_24/225_before_moonlight.jpg");
+
 			return null;
+		}
+		void getImage(String url){
+			Bitmap mBitmap = null;
+
+			Log.i(TAG,"waa");
+			InputStream in = null;
+			try {
+				in = new java.net.URL(url).openStream();
+				mBitmap = BitmapFactory.decodeStream(in);
+				in.close();
+
+			} catch (Exception ex) {
+				Log.i(TAG,"err");
+
+				ex.printStackTrace();
+			}
+			OutputStream outStream = null;
+			String extStorageDirectory =
+					"/storage/emulated/0/DCIM/OpenCamera/";
+
+			File file = new File(extStorageDirectory, "downimage.PNG");
+			try {
+				outStream = new FileOutputStream(file);
+				mBitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+				outStream.flush();
+				outStream.close();
+
+				Log.i(TAG,"끝!!");
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				Log.i(TAG,"err");
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				Log.i(TAG, "err");
+
+			}
 		}
 	}
 }
