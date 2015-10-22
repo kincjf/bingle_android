@@ -77,6 +77,12 @@
 			android:excludeFromRecents="true"
             >
         </activity>
+
+        <activity
+            android:name=".GalleryActivity"
+            >
+        </activity>
+
        	<!-- should not change the android:name, including moving to a subpackage - see http://android-developers.blogspot.co.uk/2011/06/things-that-cannot-change.html -->
         <receiver
 		    android:icon="@drawable/ic_launcher"

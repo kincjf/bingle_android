@@ -66,8 +66,6 @@ import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
 
-import com.squareup.picasso.Picasso;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,6 +93,7 @@ public class MainActivity extends Activity {
     private Map<Integer, Bitmap> preloaded_bitmap_resources = new Hashtable<Integer, Bitmap>();
     private PopupView popup_view = null;
 
+	//gallery
 	private ImageView imageView = null;
 
     private SoundPool sound_pool = null;
@@ -1722,22 +1721,20 @@ public class MainActivity extends Activity {
 
 			try {
 				// REVIEW_ACTION means we can view video files without autoplaying
-				String[] image_list = applicationInterface.getStorageUtils().getAllImage();
+				//String[] image_list = applicationInterface.getStorageUtils().getAllImage();
 				//Intent intent = new Intent(REVIEW_ACTION, uri);
 				//this.startActivity(intent);
-				imageView = (ImageView) findViewById(R.id.imageView);
-				int i = 0;
+				//imageView = (ImageView) findViewById(R.id.iv_gallery);
+				//int i = 0;
 				//File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/" + "pastel"), "suji.jpg");
-
-					File file = new File(image_list[0]);
-					Picasso.with(this)
-							.load(file)    //.load(uri)
-							.into(imageView);
+				Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
+				startActivity(intent);
+				//imageLoading.SimpleImage(this, image_list[0], imageView);
 
 			}
 			catch(ActivityNotFoundException e) {
 				if( MyDebug.LOG )
-					Log.d(TAG, "REVIEW_ACTION intent didn't work, try ACTION_VIEW");
+					Log.d(TAG, "GalleryActivity intent didn't work");
 
 			}
 		}
