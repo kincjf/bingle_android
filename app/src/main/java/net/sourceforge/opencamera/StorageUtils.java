@@ -3,6 +3,7 @@ package net.sourceforge.opencamera;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -583,7 +584,7 @@ public class StorageUtils {
     }
 
 	//get all image
-	String[] getAllImage() {
+	ArrayList<String> getAllImage() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "getAllMedia: images");
 		Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -596,7 +597,7 @@ public class StorageUtils {
 		String [] projection = new String[] {ImageColumns._ID, ImageColumns.DATE_TAKEN, ImageColumns.DATA, ImageColumns.ORIENTATION};
 		String selection = ImageColumns.MIME_TYPE + "='image/jpeg'";
 		String order = ImageColumns.DATE_TAKEN + " DESC," + ImageColumns._ID + " DESC";
-		String [] image_list = null;
+		ArrayList<String> image_list = new ArrayList<String>();
 		String strImage;
 		Cursor cursor = null;
 		try {
@@ -606,8 +607,6 @@ public class StorageUtils {
 					Log.d(TAG, "found: " + cursor.getCount());
 				// now sorted in order of date - scan to most recent one in the Open Camera save folder
 
-				int i = 0;
-				image_list = new String[cursor.getCount()];
 				int nCol = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 				File save_folder = isUsingSAF() ? null : getImageFolder();
 				String save_folder_string = isUsingSAF() ? null : save_folder.getAbsolutePath() + File.separator;
@@ -626,10 +625,10 @@ public class StorageUtils {
 
 					strImage = cursor.getString(nCol);
 					if (strImage != null && strImage.startsWith("/storage/emulated/0/Pictures/pastel/")){
-						Log.d("test","img is " + strImage);
+						Log.d("test", "img is " + strImage);
 
-						image_list[i] = strImage;
-						i++;
+						image_list.add(strImage);
+
 					}
 				} while( cursor.moveToNext() );
 			}
