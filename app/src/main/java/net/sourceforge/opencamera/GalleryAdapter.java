@@ -1,7 +1,6 @@
 package net.sourceforge.opencamera;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,26 +8,18 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static android.widget.ImageView.ScaleType.CENTER_CROP;
 
-final class SampleGridViewAdapter extends BaseAdapter {
+final class GridViewAdapter extends BaseAdapter {
     private final Context context;
-    private final List<String> urls = new ArrayList<String>();
+    private List<String> urls = new ArrayList<String>();
 
-    public SampleGridViewAdapter(Context context) {
+    public GridViewAdapter(Context context, ArrayList<String> url) {
         this.context = context;
+        this.urls = url;
 
-        // Ensure we get a different ordering of images on each run.
-        //Collections.addAll(urls, Data.URLS);
-        Collections.shuffle(urls);
-
-        // Triple up the list.
-        ArrayList<String> copy = new ArrayList<String>(urls);
-        urls.addAll(copy);
-        urls.addAll(copy);
     }
 
     @Override public View getView(int position, View convertView, ViewGroup parent) {
@@ -45,7 +36,6 @@ final class SampleGridViewAdapter extends BaseAdapter {
         Picasso.with(context) //
                 .load(url) //
                 .fit() //
-                .tag(context) //
                 .into(view);
 
         return view;

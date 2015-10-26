@@ -584,7 +584,7 @@ public class StorageUtils {
     }
 
 	//get all image
-	ArrayList<String> getAllImage() {
+	public  ArrayList<String> getAllImage() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "getAllMedia: images");
 		Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
