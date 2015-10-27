@@ -596,7 +596,7 @@ public class MainActivity extends Activity {
 
 		layoutUI();
 
-//		updateGalleryIcon(); // update in case images deleted whilst idle
+		updateGalleryIcon(); // update in case images deleted whilst idle
 
 		preview.onResume();
 

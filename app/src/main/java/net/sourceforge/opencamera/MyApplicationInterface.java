@@ -2896,7 +2896,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		folderDelete(folderPath);
+		folderDelete(folderPath);
 		return zipName;
 
 	}
