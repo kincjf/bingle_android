@@ -583,8 +583,8 @@ public class StorageUtils {
 		return media;
     }
 
-	//get all image
-	public  ArrayList<String> getAllImage() {
+	//get all Pano image
+	ArrayList<String> getAllImage() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "getAllMedia: images");
 		Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;

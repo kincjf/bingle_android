@@ -3,6 +3,7 @@ package net.sourceforge.opencamera;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -21,9 +22,9 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  * Created by WG on 2015-10-22.
  */
 public class GalleryActivity extends Activity {
-    private ImageView imageView;
+    private GridView gridView;
+    private GridViewAdapter gridViewAdapter;
     private PhotoViewAttacher mAttacher;
-    private MyApplicationInterface applicationInterface = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,17 +33,33 @@ public class GalleryActivity extends Activity {
         Intent intent = getIntent();
 
         ArrayList<String> urls = intent.getExtras().getStringArrayList("imageList");
-        GridView gridView = (GridView)findViewById(R.id.iv_grid);
+        gridView = (GridView)findViewById(R.id.iv_grid);
+        gridViewAdapter = new GridViewAdapter(GalleryActivity.this, urls);
         try{
-            gridView.setAdapter(new GridViewAdapter(this, urls));
+            gridView.setAdapter(gridViewAdapter);
         }catch (OutOfMemoryError E) {
             E.printStackTrace();
         }
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String rutaDeLaImagen = gridViewAdapter.getItem(position).toString();
+
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.parse("file://" + rutaDeLaImagen), "image/*");
+                startActivity(intent);
+
+            }
+        });
 
         //imageView = (ImageView) findViewById(R.id.iv_simple);
         //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/" + "pastel"), "suji.jpg");
         //SimpleImage(this, file, imageView);
     }
+
+
 
     public void SimpleImage(Context context, File file, ImageView imageView){
         mAttacher = new PhotoViewAttacher(imageView);

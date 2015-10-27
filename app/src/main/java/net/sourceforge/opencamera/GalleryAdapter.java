@@ -14,28 +14,32 @@ import static android.widget.ImageView.ScaleType.CENTER_CROP;
 
 final class GridViewAdapter extends BaseAdapter {
     private final Context context;
-    private List<String> urls = new ArrayList<String>();
+    private ArrayList<String> urls = new ArrayList<String>();
 
     public GridViewAdapter(Context context, ArrayList<String> url) {
+        super();
         this.context = context;
         this.urls = url;
 
     }
 
     @Override public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView view = (ImageView) convertView;
-        if (view == null) {
+        ImageView view;
+        if (convertView == null) {
             view = new ImageView(context);
-            view.setScaleType(CENTER_CROP);
+            convertView = view;
+            view.setPadding(5,5,5,5);
+        }else {
+            view = (ImageView) convertView;
         }
 
         // Get the image URL for the current position.
-        String url = getItem(position);
+        //String url = getItem(position);
 
         // Trigger the download of the URL asynchronously into the image view.
         Picasso.with(context) //
-                .load(url) //
-                .fit() //
+                .load("file://"+urls.get(position)) //
+                .resize(300, 200)
                 .into(view);
 
         return view;
@@ -45,7 +49,7 @@ final class GridViewAdapter extends BaseAdapter {
         return urls.size();
     }
 
-    @Override public String getItem(int position) {
+    @Override public Object getItem(int position) {
         return urls.get(position);
     }
 
