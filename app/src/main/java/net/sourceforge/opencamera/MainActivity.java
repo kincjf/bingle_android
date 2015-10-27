@@ -64,6 +64,17 @@ import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -585,7 +596,7 @@ public class MainActivity extends Activity {
 
 		layoutUI();
 
-		updateGalleryIcon(); // update in case images deleted whilst idle
+//		updateGalleryIcon(); // update in case images deleted whilst idle
 
 		preview.onResume();
 
@@ -979,10 +990,11 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "clickedTakePhoto");
 		if(camCount%3==0){
 			Toast.makeText(getApplicationContext(),"3장 배수 찍었어요 압축할게요",Toast.LENGTH_SHORT).show();
-			boolean res = applicationInterface.compressFolder();
-			if(res){
+			String zipPath = applicationInterface.compressFolder();
+			if(zipPath!=null){
 				Toast.makeText(getApplicationContext(),"압축 완료",Toast.LENGTH_SHORT).show();
-
+				Http transfer = new Http();
+				transfer.execute("upload",zipPath);
 			}
 
 		}else {
@@ -1994,12 +2006,11 @@ public class MainActivity extends Activity {
     }
 	//카메라 촬영 시작- 디렉토리를 설정함
 	public void camStart(View view) {
-		if( MyDebug.LOG )
+		if (MyDebug.LOG)
 			Log.d(TAG, "camStart");
 		Log.i(TAG, "CAM START");
 		applicationInterface.chooseFolder();
-		Http transfer = new Http();
-		transfer.execute("");
+
 	}
 
     public void clickedTrash(View view) {
@@ -2611,14 +2622,56 @@ public class MainActivity extends Activity {
 	}
 
 	class Http extends AsyncTask<String,Integer,Integer>{
-
+		final String UPLOAD_ZIP_URL = "http://192.168.0.14:8080/upload";
 		@Override
 		protected Integer doInBackground(String... protocol) {
+			String method = protocol[0];
 
-			getImage("http://img.v3.news.zdn.vn/w660/Uploaded/nphpayp/2014_05_24/225_before_moonlight.jpg");
 
-			return null;
+//			getImage("http://img.v3.news.zdn.vn/w660/Uploaded/nphpayp/2014_05_24/225_before_moonlight.jpg");
+
+			switch (method){
+				case "upload":
+					upload(protocol[1]);
+					break;
+			}
+			return 0;
 		}
+
+		public String upload(String filePath){
+
+			File file = new File(filePath);
+			String res="";
+			try
+			{
+				HttpClient client = new DefaultHttpClient();
+				HttpPost post = new HttpPost(UPLOAD_ZIP_URL);
+				FileBody bin = new FileBody(file);
+				MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+				reqEntity.addPart("file", bin);
+				post.setEntity(reqEntity);
+
+				HttpResponse response = client.execute(post);
+				HttpEntity resEntity = response.getEntity();
+
+				if (resEntity != null)
+				{
+
+					String _response=EntityUtils.toString(resEntity); // content will be consume only once
+					final JSONObject jObject=new JSONObject(_response);
+					Log.i("test",_response);
+					res = jObject.getString("image");
+
+				}
+				Log.i(TAG, res);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			return res;
+		}
+
 		void getImage(String url){
 			Bitmap mBitmap = null;
 
@@ -2645,7 +2698,6 @@ public class MainActivity extends Activity {
 				outStream.flush();
 				outStream.close();
 
-				Log.i(TAG,"끝!!");
 
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();

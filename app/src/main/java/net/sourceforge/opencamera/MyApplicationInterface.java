@@ -2881,23 +2881,23 @@ public class MyApplicationInterface implements ApplicationInterface {
 		return path;
 	}
 
-	public boolean compressFolder(){
+	public String compressFolder(){
 		String folderPath = getSaveFolder();
 		String zipDir = "/storage/emulated/0/DCIM/OpenCamera/progressing/";
 		File f = new File(folderPath);
 		File zipFolder = new File(zipDir);
-		String zipName = f.getName();
+		String zipName = zipDir+f.getName()+".zip";
 
 		if( !zipFolder.exists())
 			zipFolder.mkdir();
 
 		try {
-			ZipUtils.zip(folderPath , zipDir+zipName+".zip");
+			ZipUtils.zip(folderPath , zipName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		folderDelete(folderPath);
-		return true;
+//		folderDelete(folderPath);
+		return zipName;
 
 	}
 	public boolean folderDelete(String dirPath) {
