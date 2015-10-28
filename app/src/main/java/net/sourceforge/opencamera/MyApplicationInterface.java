@@ -43,6 +43,17 @@ import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.Preview.ApplicationInterface;
 import net.sourceforge.opencamera.Preview.Preview;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -50,6 +61,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -2847,7 +2860,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 	public boolean chooseFolder() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "useFolder");
-		String folderName = "/storage/emulated/0/DCIM/OpenCamera/"+System.currentTimeMillis ( );
+		String folderName = ROOT_DIR+System.currentTimeMillis ( );
 		current_folder=new File(folderName);
 		if( !current_folder.exists() )
 			current_folder.mkdir();
@@ -2883,10 +2896,9 @@ public class MyApplicationInterface implements ApplicationInterface {
 
 	public String compressFolder(){
 		String folderPath = getSaveFolder();
-		String zipDir = "/storage/emulated/0/DCIM/OpenCamera/progressing/";
 		File f = new File(folderPath);
-		File zipFolder = new File(zipDir);
-		String zipName = zipDir+f.getName()+".zip";
+		File zipFolder = new File(IMG_ZIP_DIR);
+		String zipName = IMG_ZIP_DIR+f.getName()+".zip";
 
 		if( !zipFolder.exists())
 			zipFolder.mkdir();
@@ -2916,6 +2928,99 @@ public class MyApplicationInterface implements ApplicationInterface {
 			}//if
 		dir.delete();
 	return true;
+	}
+	public String bingleUpload(String url, String filePath){
+
+		File file = new File(filePath);
+		String res="";
+		try
+		{
+			HttpClient client = new DefaultHttpClient();
+			HttpPost post = new HttpPost(url);
+			FileBody bin = new FileBody(file);
+			MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+			reqEntity.addPart("file", bin);
+			post.setEntity(reqEntity);
+
+			HttpResponse response = client.execute(post);
+			HttpEntity resEntity = response.getEntity();
+
+			if (resEntity != null)
+			{
+
+				String _response= EntityUtils.toString(resEntity); // content will be consume only once
+				final JSONObject jObject=new JSONObject(_response);
+				Log.i("test",_response);
+				res = jObject.getString("image");
+
+			}
+			Log.i(TAG, "2956"+res);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	String downBingleImage(String inputUrl,String imgName){
+		InputStream input = null;
+		OutputStream output = null;
+		HttpURLConnection connection = null;
+		try {
+			URL url = new URL(inputUrl+imgName);
+			connection = (HttpURLConnection) url.openConnection();
+			connection.connect();
+
+			// expect HTTP 200 OK, so we don't mistakenly save error report
+			// instead of the file
+			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				return "Server returned HTTP " + connection.getResponseCode()
+						+ " " + connection.getResponseMessage();
+			}
+
+			// this will be useful to display download percentage
+			// might be -1: server did not report the length
+			int fileLength = connection.getContentLength();
+
+			// download the file
+			String[] imgPath = imgName.split("/");
+			String img = imgPath[imgPath.length-1];
+
+			input = connection.getInputStream();
+			output = new FileOutputStream(BINGLE_IMG_DIR+img);
+
+			byte data[] = new byte[4096];
+			long total = 0;
+			int count;
+			while ((count = input.read(data)) != -1) {
+				// allow canceling with back button
+//				if (isCancelled()) {
+//					input.close();
+//					return null;
+//				}
+				total += count;
+				// publishing the progress....
+				if (fileLength > 0) // only if total length is known
+//					publishProgress((int) (total * 100 / fileLength));
+				output.write(data, 0, count);
+			}
+		} catch (Exception e) {
+			return e.toString();
+		} finally {
+			try {
+				if (output != null)
+					output.close();
+				if (input != null)
+					input.close();
+			} catch (IOException ignored) {
+			}
+
+			if (connection != null)
+				connection.disconnect();
+
+			return imgName;
+		}
 	}
 
 	public boolean hasThumbnailAnimation() {

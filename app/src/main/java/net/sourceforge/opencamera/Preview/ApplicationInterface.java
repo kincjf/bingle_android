@@ -15,7 +15,10 @@ public interface ApplicationInterface {
 	final int VIDEOMETHOD_FILE = 0; // video will be saved to a file
 	final int VIDEOMETHOD_SAF = 1; // video will be saved using Android 5's Storage Access Framework
 	final int VIDEOMETHOD_URI = 2; // video will be written to the supplied Uri
-	
+	final String ROOT_DIR = "/storage/emulated/0/DCIM/OpenCamera/";
+	final String IMG_ZIP_DIR = ROOT_DIR+"progress/";
+	final String BINGLE_IMG_DIR = ROOT_DIR+"bingle/";
+
 	// methods that request information
 	Context getContext(); // get the application context
 	boolean useCamera2(); // should Android 5's Camera 2 API be used?

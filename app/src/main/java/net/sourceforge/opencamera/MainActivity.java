@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -64,23 +65,10 @@ import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -985,16 +973,19 @@ public class MainActivity extends Activity {
         super.onConfigurationChanged(newConfig);
     }
 
-    public void clickedTakePhoto(View view) {
+    public void clickedTakePhoto(View view) throws JSONException {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTakePhoto");
 		if(camCount%3==0){
 			Toast.makeText(getApplicationContext(),"3장 배수 찍었어요 압축할게요",Toast.LENGTH_SHORT).show();
 			String zipPath = applicationInterface.compressFolder();
 			if(zipPath!=null){
-				Toast.makeText(getApplicationContext(),"압축 완료",Toast.LENGTH_SHORT).show();
 				Http transfer = new Http();
-				transfer.execute("upload",zipPath);
+				JSONObject params = new JSONObject();
+				params.put("command","upload");
+				params.put("filePath",zipPath);
+
+				transfer.execute(params);
 			}
 
 		}else {
@@ -2621,93 +2612,84 @@ public class MainActivity extends Activity {
 		return this.applicationInterface.hasThumbnailAnimation();
 	}
 
-	class Http extends AsyncTask<String,Integer,Integer>{
-		final String UPLOAD_ZIP_URL = "http://192.168.0.14:8080/upload";
+	class Http extends AsyncTask<JSONObject,String,String>{
+		final String SERVER_URL = "http://192.168.0.14:8080/";
+		final String UPLOAD_ZIP_URL = SERVER_URL+"upload/";
+
+		ProgressDialog asyncDialog = new ProgressDialog(MainActivity.this);
+
 		@Override
-		protected Integer doInBackground(String... protocol) {
-			String method = protocol[0];
-
-
-//			getImage("http://img.v3.news.zdn.vn/w660/Uploaded/nphpayp/2014_05_24/225_before_moonlight.jpg");
-
-			switch (method){
-				case "upload":
-					upload(protocol[1]);
-					break;
-			}
-			return 0;
+		protected void onPreExecute() {
+			super.onPreExecute();
+			asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			asyncDialog.setMessage("Please wait..");
+			asyncDialog.show();
 		}
 
-		public String upload(String filePath){
+		@Override
+		protected String doInBackground(JSONObject... protocol) {
+			JSONObject query= protocol[0];
 
-			File file = new File(filePath);
 			String res="";
-			try
-			{
-				HttpClient client = new DefaultHttpClient();
-				HttpPost post = new HttpPost(UPLOAD_ZIP_URL);
-				FileBody bin = new FileBody(file);
-				MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-				reqEntity.addPart("file", bin);
-				post.setEntity(reqEntity);
+			try {
+				switch (query.getString("command")){
+                    case "upload":
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								asyncDialog.setMessage("now uploading");
 
-				HttpResponse response = client.execute(post);
-				HttpEntity resEntity = response.getEntity();
+							}
+						});
+						onProgressUpdate();
 
-				if (resEntity != null)
-				{
 
-					String _response=EntityUtils.toString(resEntity); // content will be consume only once
-					final JSONObject jObject=new JSONObject(_response);
-					Log.i("test",_response);
-					res = jObject.getString("image");
+						String imgName = applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString("filePath"));
 
-				}
-				Log.i(TAG, res);
-			}
-			catch (Exception e)
-			{
+						JSONObject upObject = new JSONObject();
+						upObject.put("command","download");
+						upObject.put("url", SERVER_URL);
+						upObject.put("name",imgName);
+
+						doInBackground(upObject);
+						break;
+					case "download":
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								asyncDialog.setMessage("now downloading");
+
+							}
+						});
+
+
+
+						// show dialog
+						res=applicationInterface.downBingleImage(query.getString("url"),query.getString("name"));
+						break;
+                }
+			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 			return res;
 		}
 
-		void getImage(String url){
-			Bitmap mBitmap = null;
+		@Override
+		protected void onPostExecute(String str) {
+			super.onPostExecute(str);
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					asyncDialog.setMessage("success");
 
-			Log.i(TAG,"waa");
-			InputStream in = null;
-			try {
-				in = new java.net.URL(url).openStream();
-				mBitmap = BitmapFactory.decodeStream(in);
-				in.close();
-
-			} catch (Exception ex) {
-				Log.i(TAG,"err");
-
-				ex.printStackTrace();
-			}
-			OutputStream outStream = null;
-			String extStorageDirectory =
-					"/storage/emulated/0/DCIM/OpenCamera/";
-
-			File file = new File(extStorageDirectory, "downimage.PNG");
-			try {
-				outStream = new FileOutputStream(file);
-				mBitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-				outStream.flush();
-				outStream.close();
+				}
+			});
 
 
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				Log.i(TAG,"err");
+			if(str!=null)
+				Toast.makeText(getApplicationContext(),str+"다운완료",Toast.LENGTH_SHORT).show();
 
-			} catch (IOException e) {
-				e.printStackTrace();
-				Log.i(TAG, "err");
-
-			}
+			asyncDialog.dismiss();
 		}
 	}
 }
