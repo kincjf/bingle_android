@@ -1,30 +1,27 @@
 package net.sourceforge.opencamera;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
 import java.util.ArrayList;
 
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Created by WG on 2015-10-22.
  */
 public class GalleryActivity extends Activity {
+    private static final String TAG = "exam";
     private GridView gridView;
+    private ArrayList<String> urls;
     private GridViewAdapter gridViewAdapter;
-    private PhotoViewAttacher mAttacher;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +29,7 @@ public class GalleryActivity extends Activity {
         setContentView(R.layout.gallery_layout);
         Intent intent = getIntent();
 
-        ArrayList<String> urls = intent.getExtras().getStringArrayList("imageList");
+        urls = intent.getExtras().getStringArrayList("imageList");
         gridView = (GridView)findViewById(R.id.iv_grid);
         gridViewAdapter = new GridViewAdapter(GalleryActivity.this, urls);
         try{
@@ -46,9 +43,8 @@ public class GalleryActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String rutaDeLaImagen = gridViewAdapter.getItem(position).toString();
 
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file://" + rutaDeLaImagen), "image/*");
+                Intent intent = new Intent(GalleryActivity.this, GalleryPanoViewer.class);
+                intent.putExtra("url", rutaDeLaImagen);
                 startActivity(intent);
 
             }
@@ -57,16 +53,5 @@ public class GalleryActivity extends Activity {
         //imageView = (ImageView) findViewById(R.id.iv_simple);
         //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/" + "pastel"), "suji.jpg");
         //SimpleImage(this, file, imageView);
-    }
-
-
-
-    public void SimpleImage(Context context, File file, ImageView imageView){
-        mAttacher = new PhotoViewAttacher(imageView);
-
-        //File file = new File(image_list);
-        Picasso.with(context)
-                .load(file)    //.load(uri)
-                .into(imageView);
     }
 }
