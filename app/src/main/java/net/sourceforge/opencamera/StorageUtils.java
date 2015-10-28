@@ -3,6 +3,7 @@ package net.sourceforge.opencamera;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -581,4 +582,68 @@ public class StorageUtils {
 			Log.d(TAG, "return latest media: " + media);
 		return media;
     }
+
+	//get all Pano image
+	ArrayList<String> getAllImage() {
+		if( MyDebug.LOG )
+			Log.d(TAG, "getAllMedia: images");
+		Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+		//Uri query = baseUri.buildUpon().appendQueryParameter("limit", "1").build();
+		Uri query = baseUri;
+		final int column_id_c = 0;
+		final int column_date_taken_c = 1;
+		final int column_data_c = 2;
+		final int column_orientation_c = 3;
+		String [] projection = new String[] {ImageColumns._ID, ImageColumns.DATE_TAKEN, ImageColumns.DATA, ImageColumns.ORIENTATION};
+		String selection = ImageColumns.MIME_TYPE + "='image/jpeg'";
+		String order = ImageColumns.DATE_TAKEN + " DESC," + ImageColumns._ID + " DESC";
+		ArrayList<String> image_list = new ArrayList<String>();
+		String strImage;
+		Cursor cursor = null;
+		try {
+			cursor = context.getContentResolver().query(query, projection, selection, null, order);
+			if( cursor != null && cursor.moveToFirst() ) {
+				if( MyDebug.LOG )
+					Log.d(TAG, "found: " + cursor.getCount());
+				// now sorted in order of date - scan to most recent one in the Open Camera save folder
+
+				int nCol = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+				File save_folder = isUsingSAF() ? null : getImageFolder();
+				String save_folder_string = isUsingSAF() ? null : save_folder.getAbsolutePath() + File.separator;
+				if( MyDebug.LOG )
+					Log.d(TAG, "save_folder_string: " + save_folder_string);
+				do {
+					String path = cursor.getString(column_data_c);
+
+					if( MyDebug.LOG )
+						Log.d(TAG, "path: " + path);
+					// path may be null on Android 4.4!: http://stackoverflow.com/questions/3401579/get-filename-and-path-from-uri-from-mediastore
+					// and if isUsingSAF(), it's not clear how we can get the real path, or otherwise tell if an item is a subset of the SAF treeUri
+
+				//	image_list[i] = path;
+				//	i++;
+
+					strImage = cursor.getString(nCol);
+					if (strImage != null && strImage.startsWith("/storage/emulated/0/Pictures/pastel/")){
+						Log.d("test", "img is " + strImage);
+
+						image_list.add(strImage);
+
+					}
+				} while( cursor.moveToNext() );
+			}
+		}
+		catch(SQLiteException e) {
+			// had this reported on Google Play from getContentResolver().query() call
+			if( MyDebug.LOG )
+				Log.e(TAG, "SQLiteException trying to find latest media");
+			e.printStackTrace();
+		}
+		finally {
+			if( cursor != null ) {
+				cursor.close();
+			}
+		}
+		return image_list;
+	}
 }

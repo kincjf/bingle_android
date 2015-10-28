@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -26,10 +27,10 @@ import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.SoundPool;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -64,10 +65,10 @@ import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
 
-import com.squareup.picasso.Picasso;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -93,6 +94,7 @@ public class MainActivity extends Activity {
     private Map<Integer, Bitmap> preloaded_bitmap_resources = new Hashtable<Integer, Bitmap>();
     private PopupView popup_view = null;
 
+	//gallery
 	private ImageView imageView = null;
 
     private SoundPool sound_pool = null;
@@ -296,6 +298,8 @@ public class MainActivity extends Activity {
 
 		if( MyDebug.LOG )
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
+
+
 	}
 	
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -366,6 +370,7 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+
 		return true;
 	}
 	
@@ -968,15 +973,19 @@ public class MainActivity extends Activity {
         super.onConfigurationChanged(newConfig);
     }
 
-    public void clickedTakePhoto(View view) {
+    public void clickedTakePhoto(View view) throws JSONException {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTakePhoto");
 		if(camCount%3==0){
 			Toast.makeText(getApplicationContext(),"3장 배수 찍었어요 압축할게요",Toast.LENGTH_SHORT).show();
-			boolean res = applicationInterface.compressFolder();
-			if(res){
-				Toast.makeText(getApplicationContext(),"압축 완료",Toast.LENGTH_SHORT).show();
+			String zipPath = applicationInterface.compressFolder();
+			if(zipPath!=null){
+				Http transfer = new Http();
+				JSONObject params = new JSONObject();
+				params.put("command","upload");
+				params.put("filePath",zipPath);
 
+				transfer.execute(params);
 			}
 
 		}else {
@@ -1715,67 +1724,27 @@ public class MainActivity extends Activity {
 	public void clickedGallery(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedGallery");
-		//Intent intent = new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		Uri uri = applicationInterface.getStorageUtils().getLastMediaScanned();
-		if( uri == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "go to latest media");
-			StorageUtils.Media media = applicationInterface.getStorageUtils().getLatestMedia();
-			if( media != null ) {
-				uri = media.uri;
-			}
-		}
 
-		if( uri != null ) {
-			// check uri exists
-			if( MyDebug.LOG )
-				Log.d(TAG, "found most recent uri: " + uri);
-			try {
-				ContentResolver cr = getContentResolver();
-				ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-				if( pfd == null ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "uri no longer exists (1): " + uri);
-					uri = null;
-				}
-				pfd.close();
-			}
-			catch(IOException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "uri no longer exists (2): " + uri);
-				uri = null;
-			}
-		}
-		if( uri == null ) {
-			uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-		}
 		if( !is_test ) {
-			// don't do if testing, as unclear how to exit activity to finish test (for testGallery())
-			if( MyDebug.LOG )
-				Log.d(TAG, "launch uri:" + uri);
-			final String REVIEW_ACTION = "com.android.camera.action.REVIEW";
+
 			try {
 				// REVIEW_ACTION means we can view video files without autoplaying
-				Intent intent = new Intent(REVIEW_ACTION, uri);
-				this.startActivity(intent);
-				//imageView = (ImageView) findViewById(R.id.imageView);
-				//Picasso.with(this)
-				//		.load("http://elandstyle.cafe24.com/wp/wp-content/uploads/2014/02/roem06-500x261.jpg")
-				//		//.load(uri)
-				//		.into(imageView);
+				ArrayList<String> image_list = applicationInterface.getStorageUtils().getAllImage();
+				//Intent intent = new Intent(REVIEW_ACTION, uri);
+				//this.startActivity(intent);
+				//imageView = (ImageView) findViewById(R.id.iv_gallery);
+				//int i = 0;
+				//File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/" + "pastel"), "suji.jpg");
+				Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
+				intent.putExtra("imageList", image_list);
+				startActivity(intent);
+				//imageLoading.SimpleImage(this, image_list[0], imageView);
+
 			}
 			catch(ActivityNotFoundException e) {
 				if( MyDebug.LOG )
-					Log.d(TAG, "REVIEW_ACTION intent didn't work, try ACTION_VIEW");
-				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-				// from http://stackoverflow.com/questions/11073832/no-activity-found-to-handle-intent - needed to fix crash if no gallery app installed
-				//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("blah")); // test
-				if( intent.resolveActivity(getPackageManager()) != null ) {
-					this.startActivity(intent);
-				}
-				else{
-					preview.showToast(null, R.string.no_gallery_app);
-				}
+					Log.d(TAG, "GalleryActivity intent didn't work");
+
 			}
 		}
 	}
@@ -2028,16 +1997,18 @@ public class MainActivity extends Activity {
     }
 	//카메라 촬영 시작- 디렉토리를 설정함
 	public void camStart(View view) {
-		if( MyDebug.LOG )
+		if (MyDebug.LOG)
 			Log.d(TAG, "camStart");
-		Log.i(TAG,"CAM START");
+		Log.i(TAG, "CAM START");
 		applicationInterface.chooseFolder();
+
 	}
 
     public void clickedTrash(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTrash");
 		applicationInterface.trashLastImage();
+
     }
 
     private void takePicture() {
@@ -2639,5 +2610,86 @@ public class MainActivity extends Activity {
     
 	public boolean hasThumbnailAnimation() {
 		return this.applicationInterface.hasThumbnailAnimation();
+	}
+
+	class Http extends AsyncTask<JSONObject,String,String>{
+		final String SERVER_URL = "http://192.168.0.14:8080/";
+		final String UPLOAD_ZIP_URL = SERVER_URL+"upload/";
+
+		ProgressDialog asyncDialog = new ProgressDialog(MainActivity.this);
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			asyncDialog.setMessage("Please wait..");
+			asyncDialog.show();
+		}
+
+		@Override
+		protected String doInBackground(JSONObject... protocol) {
+			JSONObject query= protocol[0];
+
+			String res="";
+			try {
+				switch (query.getString("command")){
+                    case "upload":
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								asyncDialog.setMessage("now uploading");
+
+							}
+						});
+						onProgressUpdate();
+
+
+						String imgName = applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString("filePath"));
+
+						JSONObject upObject = new JSONObject();
+						upObject.put("command","download");
+						upObject.put("url", SERVER_URL);
+						upObject.put("name",imgName);
+
+						doInBackground(upObject);
+						break;
+					case "download":
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								asyncDialog.setMessage("now downloading");
+
+							}
+						});
+
+
+
+						// show dialog
+						res=applicationInterface.downBingleImage(query.getString("url"),query.getString("name"));
+						break;
+                }
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			return res;
+		}
+
+		@Override
+		protected void onPostExecute(String str) {
+			super.onPostExecute(str);
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					asyncDialog.setMessage("success");
+
+				}
+			});
+
+
+			if(str!=null)
+				Toast.makeText(getApplicationContext(),str+"다운완료",Toast.LENGTH_SHORT).show();
+
+			asyncDialog.dismiss();
+		}
 	}
 }
