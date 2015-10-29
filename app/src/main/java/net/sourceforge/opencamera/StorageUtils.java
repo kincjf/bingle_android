@@ -620,8 +620,6 @@ public class StorageUtils {
 					// path may be null on Android 4.4!: http://stackoverflow.com/questions/3401579/get-filename-and-path-from-uri-from-mediastore
 					// and if isUsingSAF(), it's not clear how we can get the real path, or otherwise tell if an item is a subset of the SAF treeUri
 
-				//	image_list[i] = path;
-				//	i++;
 
 					strImage = cursor.getString(nCol);
 					if (strImage != null && strImage.startsWith("/storage/emulated/0/Pictures/pastel/")){

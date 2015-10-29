@@ -54,11 +54,10 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
                     public void onResult(PanoramaResult result) {
                         if (result.getStatus().isSuccess()) {
                             Intent viewerIntent = result.getViewerIntent();
-                            Log.i(TAG, "�ѳ�?2");
                             Log.i(TAG, "found viewerIntent: " + viewerIntent);
                             if (viewerIntent != null) {
                                 startActivity(viewerIntent);
-                                Log.i(TAG, "�ѳ�?2");
+
                             }
                         } else {
                             Log.e(TAG, "error: " + result);
@@ -83,6 +82,7 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     public void onStop() {
         super.onStop();
         mClient.disconnect();
+        Log.i(TAG, "Client disconnect");
     }
 
     /**
