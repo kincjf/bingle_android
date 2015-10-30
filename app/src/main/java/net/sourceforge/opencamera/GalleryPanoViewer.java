@@ -37,12 +37,15 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
                 .addApi(Panorama.API)
                 .build();
 
+
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
         mClient.connect();
+        Log.i(TAG, "Client connect");
     }
 
     @Override
@@ -79,8 +82,8 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy(){
+        super.onDestroy();
         mClient.disconnect();
         Log.i(TAG, "Client disconnect");
     }
