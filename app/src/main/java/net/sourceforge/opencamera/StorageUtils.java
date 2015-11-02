@@ -623,7 +623,7 @@ public class StorageUtils {
 
 					strImage = cursor.getString(nCol);
 					if (strImage != null && strImage.startsWith("/storage/emulated/0/Pictures/pastel/")){
-						Log.d("test", "img is " + strImage);
+						Log.d(TAG, "Set image is " + strImage);
 
 						image_list.add(strImage);
 

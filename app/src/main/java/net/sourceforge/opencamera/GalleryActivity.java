@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * Created by WG on 2015-10-22.
  */
 public class GalleryActivity extends Activity {
-    private static final String TAG = "exam";
+    private static final String TAG = "GalleryActivity";
     private GridView gridView;
     private ArrayList<String> urls;
     private GridViewAdapter gridViewAdapter;
@@ -25,6 +25,9 @@ public class GalleryActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if( MyDebug.LOG ) {
+            Log.d(TAG, "onCreate");
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_layout);
         Intent intent = getIntent();
@@ -49,9 +52,5 @@ public class GalleryActivity extends Activity {
 
             }
         });
-
-        //imageView = (ImageView) findViewById(R.id.iv_simple);
-        //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/" + "pastel"), "suji.jpg");
-        //SimpleImage(this, file, imageView);
     }
 }
