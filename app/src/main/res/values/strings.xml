@@ -261,4 +261,8 @@
 
     <string name="saf_select_save_location">Select a save location</string>
     <string name="saf_cancelled">Storage Access Framework cancelled</string>
+
+    <string name="server_success">Success to Transfer</string>
+    <string name="server_err_default">Fail connecting. Please Reconnect</string>
+    <string name="server_err_upload">Upload Error</string>
 </resources>

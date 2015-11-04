@@ -2612,7 +2612,7 @@ public class MainActivity extends Activity {
 		return this.applicationInterface.hasThumbnailAnimation();
 	}
 
-	class Http extends AsyncTask<JSONObject,String,String>{
+	class Http extends AsyncTask<JSONObject,JSONObject,JSONObject>{
 		final String SERVER_URL = "http://192.168.0.14:8080/";
 		final String UPLOAD_ZIP_URL = SERVER_URL+"upload/";
 
@@ -2627,10 +2627,10 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		protected String doInBackground(JSONObject... protocol) {
+		protected JSONObject doInBackground(JSONObject... protocol) {
 			JSONObject query= protocol[0];
 
-			String res="";
+			JSONObject res=null;
 			try {
 				switch (query.getString("command")){
                     case "upload":
@@ -2644,12 +2644,17 @@ public class MainActivity extends Activity {
 						onProgressUpdate();
 
 
-						String imgName = applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString("filePath"));
+						JSONObject uploadResult= applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString("filePath"));
 
+						if(uploadResult.getInt("status")!=200){
+							res = uploadResult;
+							break;
+
+						}
 						JSONObject upObject = new JSONObject();
 						upObject.put("command","download");
 						upObject.put("url", SERVER_URL);
-						upObject.put("name",imgName);
+						upObject.put("name",uploadResult.getString("image"));
 
 						doInBackground(upObject);
 						break;
@@ -2675,8 +2680,8 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		protected void onPostExecute(String str) {
-			super.onPostExecute(str);
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -2684,12 +2689,26 @@ public class MainActivity extends Activity {
 
 				}
 			});
-
-
-			if(str!=null)
-				Toast.makeText(getApplicationContext(),str+"다운완료",Toast.LENGTH_SHORT).show();
-
 			asyncDialog.dismiss();
+
+			int status=0;
+			try {
+				status = result.getInt("status");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			if(400<=status&&status<500){
+				Toast.makeText(getApplicationContext(),status+": "+getResources().getString(R.string.server_err_upload),Toast.LENGTH_SHORT).show();
+				return;
+			}
+
+
+			if(status==200) {
+				Toast.makeText(getApplicationContext(), getResources().getString(R.string.server_success), Toast.LENGTH_SHORT).show();
+				return;
+			}
+
 		}
 	}
 }

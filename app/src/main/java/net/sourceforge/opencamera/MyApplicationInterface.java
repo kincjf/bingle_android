@@ -52,6 +52,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -2929,10 +2930,10 @@ public class MyApplicationInterface implements ApplicationInterface {
 		dir.delete();
 	return true;
 	}
-	public String bingleUpload(String url, String filePath){
+	JSONObject bingleUpload(String url, String filePath){
 
 		File file = new File(filePath);
-		String res="";
+		JSONObject resOb = null;
 		try
 		{
 			HttpClient client = new DefaultHttpClient();
@@ -2948,25 +2949,28 @@ public class MyApplicationInterface implements ApplicationInterface {
 			if (resEntity != null)
 			{
 
-				String _response= EntityUtils.toString(resEntity); // content will be consume only once
-				final JSONObject jObject=new JSONObject(_response);
-				Log.i("test",_response);
-				res = jObject.getString("image");
+				String _response= EntityUtils.toString(resEntity);
+				resOb=new JSONObject(_response);
 
 			}
-			Log.i(TAG, "2956"+res);
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			String data = "{\"status\":\"404\"}";
+			resOb = new JSONObject(data);
+
+		}finally {
+
+			return resOb;
+
 		}
-		return res;
 	}
 
-	String downBingleImage(String inputUrl,String imgName){
+	JSONObject downBingleImage(String inputUrl,String imgName){
 		InputStream input = null;
 		OutputStream output = null;
 		HttpURLConnection connection = null;
+		JSONObject resultObject = new JSONObject();
 		try {
 			URL url = new URL(inputUrl+imgName);
 			connection = (HttpURLConnection) url.openConnection();
@@ -2975,8 +2979,8 @@ public class MyApplicationInterface implements ApplicationInterface {
 			// expect HTTP 200 OK, so we don't mistakenly save error report
 			// instead of the file
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				return "Server returned HTTP " + connection.getResponseCode()
-						+ " " + connection.getResponseMessage();
+				resultObject.put("status",connection.getResponseCode());
+				return resultObject;
 			}
 
 			// this will be useful to display download percentage
@@ -3006,8 +3010,10 @@ public class MyApplicationInterface implements ApplicationInterface {
 				output.write(data, 0, count);
 			}
 		} catch (Exception e) {
-			return e.toString();
+			resultObject.put("status",404);
+			return resultObject;
 		} finally {
+
 			try {
 				if (output != null)
 					output.close();
@@ -3019,7 +3025,15 @@ public class MyApplicationInterface implements ApplicationInterface {
 			if (connection != null)
 				connection.disconnect();
 
-			return imgName;
+			try {
+				resultObject.put("status",200);
+				resultObject.put("file_dir",output);
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			return resultObject;
 		}
 	}
 
