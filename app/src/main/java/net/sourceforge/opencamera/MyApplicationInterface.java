@@ -41,6 +41,7 @@ import android.widget.Toast;
 
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.Preview.ApplicationInterface;
+import net.sourceforge.opencamera.Preview.JSONCommandInterface;
 import net.sourceforge.opencamera.Preview.Preview;
 
 import org.apache.http.HttpEntity;
@@ -70,7 +71,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class MyApplicationInterface implements ApplicationInterface {
+public class MyApplicationInterface implements ApplicationInterface,JSONCommandInterface {
 	private static final String TAG = "MyApplicationInterface";
 	
 	private static final String TAG_GPS_IMG_DIRECTION = "GPSImgDirection";
@@ -2956,7 +2957,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		}
 		catch (Exception e)
 		{
-			String data = "{\"status\":\"404\"}";
+			String data = "{"+STATUS+":"+STATUS_404+"}";
 			resOb = new JSONObject(data);
 
 		}finally {
@@ -2972,14 +2973,14 @@ public class MyApplicationInterface implements ApplicationInterface {
 		HttpURLConnection connection = null;
 		JSONObject resultObject = new JSONObject();
 		try {
-			URL url = new URL(inputUrl+imgName);
+			URL url = new URL(inputUrl);
 			connection = (HttpURLConnection) url.openConnection();
 			connection.connect();
 
 			// expect HTTP 200 OK, so we don't mistakenly save error report
 			// instead of the file
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				resultObject.put("status",connection.getResponseCode());
+				resultObject.put(STATUS,connection.getResponseCode());
 				return resultObject;
 			}
 
@@ -3010,7 +3011,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 				output.write(data, 0, count);
 			}
 		} catch (Exception e) {
-			resultObject.put("status",404);
+			resultObject.put(STATUS,STATUS_404);
 			return resultObject;
 		} finally {
 
@@ -3026,8 +3027,8 @@ public class MyApplicationInterface implements ApplicationInterface {
 				connection.disconnect();
 
 			try {
-				resultObject.put("status",200);
-				resultObject.put("file_dir",output);
+				resultObject.put(STATUS,STATUS_OK);
+				resultObject.put(FILE_PATH,output);
 
 			} catch (JSONException e) {
 				e.printStackTrace();

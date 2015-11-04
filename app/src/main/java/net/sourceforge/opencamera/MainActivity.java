@@ -61,6 +61,7 @@ import android.widget.ZoomControls;
 
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
+import net.sourceforge.opencamera.Preview.JSONCommandInterface;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
@@ -75,7 +76,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements JSONCommandInterface{
 	private static final String TAG = "MainActivity";
 	private SensorManager mSensorManager = null;
 	private Sensor mSensorAccelerometer = null;
@@ -982,8 +983,8 @@ public class MainActivity extends Activity {
 			if(zipPath!=null){
 				Http transfer = new Http();
 				JSONObject params = new JSONObject();
-				params.put("command","upload");
-				params.put("filePath",zipPath);
+				params.put(COMMAND,CMD_UPLOAD);
+				params.put(FILE_PATH,zipPath);
 
 				transfer.execute(params);
 			}
@@ -2632,8 +2633,8 @@ public class MainActivity extends Activity {
 
 			JSONObject res=null;
 			try {
-				switch (query.getString("command")){
-                    case "upload":
+				switch (query.getString(COMMAND)){
+                    case CMD_UPLOAD:
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
@@ -2644,21 +2645,21 @@ public class MainActivity extends Activity {
 						onProgressUpdate();
 
 
-						JSONObject uploadResult= applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString("filePath"));
+						JSONObject uploadResult= applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString(FILE_PATH));
 
-						if(uploadResult.getInt("status")!=200){
+						if(uploadResult.getInt(STATUS)!=200){
 							res = uploadResult;
 							break;
 
 						}
 						JSONObject upObject = new JSONObject();
-						upObject.put("command","download");
-						upObject.put("url", SERVER_URL);
-						upObject.put("name",uploadResult.getString("image"));
+						upObject.put(COMMAND,CMD_DOWNLOAD);
+						upObject.put(CONNECT_URL, SERVER_URL+uploadResult.getString(WEB_FILE_DIR));
+						upObject.put(WEB_FILE_DIR,uploadResult.getString(WEB_FILE_DIR));
 
 						doInBackground(upObject);
 						break;
-					case "download":
+					case CMD_DOWNLOAD:
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
@@ -2667,10 +2668,7 @@ public class MainActivity extends Activity {
 							}
 						});
 
-
-
-						// show dialog
-						res=applicationInterface.downBingleImage(query.getString("url"),query.getString("name"));
+						res=applicationInterface.downBingleImage(query.getString(CONNECT_URL),query.getString(WEB_FILE_DIR));
 						break;
                 }
 			} catch (JSONException e) {
@@ -2693,7 +2691,7 @@ public class MainActivity extends Activity {
 
 			int status=0;
 			try {
-				status = result.getInt("status");
+				status = result.getInt(STATUS);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
