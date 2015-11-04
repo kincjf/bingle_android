@@ -2,18 +2,12 @@ package net.sourceforge.opencamera;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.util.ArrayList;
 
@@ -35,21 +29,6 @@ public class GalleryActivity extends Activity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_layout);
-
-        if (!ImageLoader.getInstance().isInited()) {
-            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-                    .threadPriority(Thread.NORM_PRIORITY - 2)
-                    .denyCacheImageMultipleSizesInMemory()
-                    .discCacheFileNameGenerator(new Md5FileNameGenerator())
-                    .tasksProcessingOrder(QueueProcessingType.LIFO)
-                    .writeDebugLogs() // Remove for release app
-                    .build();
-            ImageLoader.getInstance().init(config);
-
-            if( MyDebug.LOG ) {
-                Log.d(TAG, "ImageLoader init");
-            }
-        }
 
         Intent intent = getIntent();
         urls = intent.getExtras().getStringArrayList("imageList");

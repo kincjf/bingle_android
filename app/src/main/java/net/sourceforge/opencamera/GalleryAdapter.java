@@ -5,57 +5,52 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.view.LayoutInflater;
 
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
-final class GridViewAdapter extends BaseAdapter {
+final class GridViewAdapter extends ArrayAdapter {
     private static final String TAG = "GalleryAdapter";
     private final Context context;
-    private ImageLoader imageLoader = ImageLoader.getInstance();
     private ArrayList<String> urls = new ArrayList<String>();
-    private DisplayImageOptions option;
+    private LayoutInflater inflater;
 
     public GridViewAdapter(Context context, ArrayList<String> url) {
-        super();
+        super(context,R.layout.gallery_layout, url);
         if( MyDebug.LOG ) {
             Log.d(TAG, "GridViewAdapter");
         }
         this.context = context;
         this.urls = url;
 
-        option = new DisplayImageOptions.Builder()
-                .cacheInMemory(false)
-                .cacheOnDisk(true)
-                .bitmapConfig(Bitmap.Config.ARGB_8888)
-                .build();
-
+        inflater = LayoutInflater.from(context);
     }
 
     @Override public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView view;
+        final ImageView view;
         if (convertView == null) {
             if( MyDebug.LOG ) {
                 Log.d(TAG, "converView :" + convertView);
             }
             view = new ImageView(context);
-            convertView = view;
-            view.setPadding(5,5,5,5);
+            //view = (ImageView) inflater.inflate(R.layout.gallery_layout,parent,false);
+
         }else {
             view = (ImageView) convertView;
         }
 
-        // Load image, decode it to Bitmap and display Bitmap in ImageView (or any other view
-        //  which implements ImageAware interface)
-        imageLoader.displayImage("file://" + urls.get(position), view, option);
+        Glide.with(context)
+                .load("file://"+urls.get(position))
+                .override(300, 200)
+                .thumbnail(0.1f)
+                .into(view);
 
 
         // Trigger the download of the URL asynchronously into the image view.
