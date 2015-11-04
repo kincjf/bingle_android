@@ -2931,7 +2931,8 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		dir.delete();
 	return true;
 	}
-	JSONObject bingleUpload(String url, String filePath){
+
+	public JSONObject bingleUpload(String url, String filePath) throws JSONException {
 
 		File file = new File(filePath);
 		JSONObject resOb = null;
@@ -2951,21 +2952,22 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 			{
 
 				String _response= EntityUtils.toString(resEntity);
-				resOb=new JSONObject(_response);
-
+				resOb =new JSONObject(_response);
 			}
 		}
 		catch (Exception e)
 		{
-			String data = "{"+STATUS+":"+STATUS_404+"}";
-			resOb = new JSONObject(data);
 
-		}finally {
+//			resOb = new JSONObject();
+//			resOb.put(STATUS,STATUS_404);
+//			return resOb;
+			e.printStackTrace();
 
-			return resOb;
 
 		}
+		return resOb;
 	}
+
 
 	JSONObject downBingleImage(String inputUrl,String imgName){
 		InputStream input = null;
