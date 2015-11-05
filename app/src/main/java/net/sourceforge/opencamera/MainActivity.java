@@ -2647,7 +2647,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 						JSONObject uploadResult= applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString(FILE_PATH));
 
-						if(uploadResult.getInt(STATUS)!=200){
+						if(uploadResult.getInt(STATUS)!=STATUS_OK){
 							res = uploadResult;
 							break;
 

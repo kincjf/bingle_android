@@ -148,6 +148,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 	}
 	
 	void onSaveInstanceState(Bundle state) {
+
 		if( MyDebug.LOG )
 			Log.d(TAG, "onSaveInstanceState");
 		if( MyDebug.LOG )
@@ -989,25 +990,25 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		}
 		main_activity.runOnUiThread(new Runnable() {
 			public void run() {
-		    	final int visibility = show ? View.VISIBLE : View.GONE;
-			    View switchCameraButton = (View) main_activity.findViewById(R.id.switch_camera);
-			    View switchVideoButton = (View) main_activity.findViewById(R.id.switch_video);
-			    View exposureButton = (View) main_activity.findViewById(R.id.exposure);
-			    View exposureLockButton = (View) main_activity.findViewById(R.id.exposure_lock);
-			    View popupButton = (View) main_activity.findViewById(R.id.popup);
-			    if( main_activity.getPreview().getCameraControllerManager().getNumberOfCameras() > 1 )
-			    	switchCameraButton.setVisibility(visibility);
-			    if( !main_activity.getPreview().isVideo() )
-			    	switchVideoButton.setVisibility(visibility); // still allow switch video when recording video
-			    if( main_activity.supportsExposureButton() && !main_activity.getPreview().isVideo() ) // still allow exposure when recording video
-			    	exposureButton.setVisibility(visibility);
-			    if( main_activity.getPreview().supportsExposureLock() && !main_activity.getPreview().isVideo() ) // still allow exposure lock when recording video
-			    	exposureLockButton.setVisibility(visibility);
-			    if( !show ) {
-			    	main_activity.closePopup(); // we still allow the popup when recording video, but need to update the UI (so it only shows flash options), so easiest to just close
-			    }
-			    if( !main_activity.getPreview().isVideo() || !main_activity.getPreview().supportsFlash() )
-			    	popupButton.setVisibility(visibility); // still allow popup in order to change flash mode when recording video
+				final int visibility = show ? View.VISIBLE : View.GONE;
+				View switchCameraButton = (View) main_activity.findViewById(R.id.switch_camera);
+				View switchVideoButton = (View) main_activity.findViewById(R.id.switch_video);
+				View exposureButton = (View) main_activity.findViewById(R.id.exposure);
+				View exposureLockButton = (View) main_activity.findViewById(R.id.exposure_lock);
+				View popupButton = (View) main_activity.findViewById(R.id.popup);
+				if (main_activity.getPreview().getCameraControllerManager().getNumberOfCameras() > 1)
+					switchCameraButton.setVisibility(visibility);
+				if (!main_activity.getPreview().isVideo())
+					switchVideoButton.setVisibility(visibility); // still allow switch video when recording video
+				if (main_activity.supportsExposureButton() && !main_activity.getPreview().isVideo()) // still allow exposure when recording video
+					exposureButton.setVisibility(visibility);
+				if (main_activity.getPreview().supportsExposureLock() && !main_activity.getPreview().isVideo()) // still allow exposure lock when recording video
+					exposureLockButton.setVisibility(visibility);
+				if (!show) {
+					main_activity.closePopup(); // we still allow the popup when recording video, but need to update the UI (so it only shows flash options), so easiest to just close
+				}
+				if (!main_activity.getPreview().isVideo() || !main_activity.getPreview().supportsFlash())
+					popupButton.setVisibility(visibility); // still allow popup in order to change flash mode when recording video
 			}
 		});
     }
@@ -2932,10 +2933,9 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 	return true;
 	}
 
-	public JSONObject bingleUpload(String url, String filePath) throws JSONException {
+	public JSONObject bingleUpload(String url, String filePath) {
 
 		File file = new File(filePath);
-		JSONObject resOb = null;
 		try
 		{
 			HttpClient client = new DefaultHttpClient();
@@ -2948,25 +2948,32 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 			HttpResponse response = client.execute(post);
 			HttpEntity resEntity = response.getEntity();
 
-			if (resEntity != null)
+			if(resEntity != null)
 			{
 
 				String _response= EntityUtils.toString(resEntity);
-				resOb =new JSONObject(_response);
+				return new JSONObject(_response);
 			}
+
 		}
 		catch (Exception e)
 		{
+			JSONObject resOb = null;
 
-//			resOb = new JSONObject();
-//			resOb.put(STATUS,STATUS_404);
-//			return resOb;
-			e.printStackTrace();
+			resOb = new JSONObject();
+			try {
+				resOb.put(STATUS,STATUS_404);
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
+			return resOb;
 
 
 		}
-		return resOb;
+//		return resOb;
+		return null;
 	}
+
 
 
 	JSONObject downBingleImage(String inputUrl,String imgName){
@@ -3008,15 +3015,17 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 //				}
 				total += count;
 				// publishing the progress....
-				if (fileLength > 0) // only if total length is known
+//				if (fileLength > 0) // only if total length is known
 //					publishProgress((int) (total * 100 / fileLength));
 				output.write(data, 0, count);
 			}
 		} catch (Exception e) {
-			resultObject.put(STATUS,STATUS_404);
-			return resultObject;
-		} finally {
-
+			try {
+				resultObject.put(STATUS, STATUS_404);
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
+		}finally{
 			try {
 				if (output != null)
 					output.close();
@@ -3029,8 +3038,10 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 				connection.disconnect();
 
 			try {
-				resultObject.put(STATUS,STATUS_OK);
-				resultObject.put(FILE_PATH,output);
+				if(resultObject.get(STATUS)==null){
+					resultObject.put(STATUS,STATUS_OK);
+					resultObject.put(FILE_PATH,output);
+				}
 
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -3038,6 +3049,10 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 
 			return resultObject;
 		}
+
+
+
+
 	}
 
 	public boolean hasThumbnailAnimation() {
