@@ -2,6 +2,7 @@ package net.sourceforge.opencamera;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,6 +35,7 @@ public class GalleryActivity extends Activity {
         urls = intent.getExtras().getStringArrayList("imageList");
         gridView = (GridView)findViewById(R.id.iv_grid);
         gridViewAdapter = new GridViewAdapter(GalleryActivity.this, urls);
+        gridView.setSelector(new StateListDrawable()); // image 선택시 생기는 여백 제거
         try{
             gridView.setAdapter(gridViewAdapter);
         }catch (OutOfMemoryError E) {

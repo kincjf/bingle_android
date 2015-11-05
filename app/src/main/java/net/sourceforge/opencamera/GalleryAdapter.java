@@ -2,6 +2,7 @@ package net.sourceforge.opencamera;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.StateListDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,23 +35,27 @@ final class GridViewAdapter extends ArrayAdapter {
     }
 
     @Override public View getView(int position, View convertView, ViewGroup parent) {
-        final ImageView view;
+        //final ImageView view;
         if (convertView == null) {
             if( MyDebug.LOG ) {
                 Log.d(TAG, "converView :" + convertView);
             }
-            view = new ImageView(context);
-            //view = (ImageView) inflater.inflate(R.layout.gallery_layout,parent,false);
-
-        }else {
-            view = (ImageView) convertView;
+            convertView = inflater.inflate(R.layout.gallery_girdview_image,parent,false);
+            convertView.setPadding(2,0,2,0);
         }
 
-        Glide.with(context)
-                .load("file://"+urls.get(position))
-                .override(300, 200)
-                .thumbnail(0.1f)
-                .into(view);
+        if(urls != null) {
+            Glide.with(context)
+                    .load("file://" + urls.get(position))
+                    .placeholder(R.drawable.gallery)
+                    .override(300, 300)
+                    .centerCrop()
+                    .into((ImageView) convertView);
+        }else{
+            if( MyDebug.LOG ) {
+                Log.d(TAG, "urls : null");
+            }
+        }
 
 
         // Trigger the download of the URL asynchronously into the image view.
@@ -59,7 +64,7 @@ final class GridViewAdapter extends ArrayAdapter {
         //        .resize(300, 200)
         //        .into(view);
 
-        return view;
+        return convertView;
     }
 
     @Override public int getCount() {
