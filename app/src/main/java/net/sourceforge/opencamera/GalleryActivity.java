@@ -45,11 +45,21 @@ public class GalleryActivity extends Activity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 String rutaDeLaImagen = gridViewAdapter.getItem(position).toString();
 
                 Intent intent = new Intent(GalleryActivity.this, GalleryPanoViewer.class);
                 intent.putExtra("url", rutaDeLaImagen);
                 startActivity(intent);
+
+
+                /*
+                String rutaDeLaImagen = gridViewAdapter.getItem(position).toString();
+
+                Intent intent = new Intent(GalleryActivity.this, GalleryViewPagerActivity.class);
+                intent.putExtra("url", rutaDeLaImagen);
+                startActivity(intent);
+                */
 
             }
         });

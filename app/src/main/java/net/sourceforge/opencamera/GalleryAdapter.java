@@ -1,19 +1,14 @@
 package net.sourceforge.opencamera;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.StateListDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.view.LayoutInflater;
 
 import com.bumptech.glide.Glide;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -26,7 +21,7 @@ final class GridViewAdapter extends ArrayAdapter {
     public GridViewAdapter(Context context, ArrayList<String> url) {
         super(context,R.layout.gallery_layout, url);
         if( MyDebug.LOG ) {
-            Log.d(TAG, "GridViewAdapter");
+            Log.d(TAG, "load");
         }
         this.context = context;
         this.urls = url;
@@ -35,7 +30,7 @@ final class GridViewAdapter extends ArrayAdapter {
     }
 
     @Override public View getView(int position, View convertView, ViewGroup parent) {
-        //final ImageView view;
+
         if (convertView == null) {
             if( MyDebug.LOG ) {
                 Log.d(TAG, "converView :" + convertView);
@@ -56,13 +51,6 @@ final class GridViewAdapter extends ArrayAdapter {
                 Log.d(TAG, "urls : null");
             }
         }
-
-
-        // Trigger the download of the URL asynchronously into the image view.
-        //Picasso.with(context) //
-        //        .load("file://"+urls.get(position)) //
-        //        .resize(300, 200)
-        //        .into(view);
 
         return convertView;
     }
