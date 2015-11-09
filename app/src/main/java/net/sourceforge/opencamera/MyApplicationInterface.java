@@ -2981,6 +2981,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		OutputStream output = null;
 		HttpURLConnection connection = null;
 		JSONObject resultObject = new JSONObject();
+
 		try {
 			URL url = new URL(inputUrl);
 			connection = (HttpURLConnection) url.openConnection();
@@ -2999,10 +3000,10 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 
 			// download the file
 			String[] imgPath = imgName.split("/");
-			String img = imgPath[imgPath.length-1];
+			imgName = imgPath[imgPath.length-1];
 
 			input = connection.getInputStream();
-			output = new FileOutputStream(BINGLE_IMG_DIR+img);
+			output = new FileOutputStream(BINGLE_IMG_DIR+imgName);
 
 			byte data[] = new byte[4096];
 			long total = 0;
@@ -3038,9 +3039,9 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 				connection.disconnect();
 
 			try {
-				if(resultObject.get(STATUS)==null){
+				if(resultObject.isNull(STATUS)){
 					resultObject.put(STATUS,STATUS_OK);
-					resultObject.put(FILE_PATH,output);
+					resultObject.put(FILE_PATH,imgName);
 				}
 
 			} catch (JSONException e) {

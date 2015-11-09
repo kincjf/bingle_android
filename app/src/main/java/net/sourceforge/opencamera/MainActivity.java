@@ -2657,8 +2657,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 						upObject.put(CONNECT_URL, SERVER_URL+uploadResult.getString(WEB_FILE_DIR));
 						upObject.put(WEB_FILE_DIR,uploadResult.getString(WEB_FILE_DIR));
 
-						doInBackground(upObject);
-						break;
+						return doInBackground(upObject);
 					case CMD_DOWNLOAD:
 						runOnUiThread(new Runnable() {
 							@Override
@@ -2668,8 +2667,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 							}
 						});
 
-						res=applicationInterface.downBingleImage(query.getString(CONNECT_URL),query.getString(WEB_FILE_DIR));
-						break;
+						return applicationInterface.downBingleImage(query.getString(CONNECT_URL),query.getString(WEB_FILE_DIR));
                 }
 			} catch (JSONException e) {
 				e.printStackTrace();
