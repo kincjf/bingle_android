@@ -1,16 +1,15 @@
 package net.sourceforge.opencamera.UI;
 
-/**
- * Created by WG on 2015-11-06.
- */
-
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+/**
+ * Created by WG on 2015-11-09.
+ */
+public class GalleryViewPager extends ViewPager {
 
-public class GalleryViewPager extends ViewPager{
     private boolean isLocked;
 
     public GalleryViewPager(Context context) {
@@ -52,4 +51,5 @@ public class GalleryViewPager extends ViewPager{
     public boolean isLocked() {
         return isLocked;
     }
+
 }

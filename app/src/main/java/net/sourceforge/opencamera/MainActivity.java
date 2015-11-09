@@ -1731,15 +1731,16 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			try {
 				// REVIEW_ACTION means we can view video files without autoplaying
 				ArrayList<String> image_list = applicationInterface.getStorageUtils().getAllImage();
-				//Intent intent = new Intent(REVIEW_ACTION, uri);
-				//this.startActivity(intent);
-				//imageView = (ImageView) findViewById(R.id.iv_gallery);
-				//int i = 0;
-				//File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/" + "pastel"), "suji.jpg");
+
+				/*
 				Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
 				intent.putExtra("imageList", image_list);
 				startActivity(intent);
-				//imageLoading.SimpleImage(this, image_list[0], imageView);
+				*/
+
+				Intent intent = new Intent(MainActivity.this, GalleryViewPagerActivity.class);
+				intent.putExtra("imageList", image_list);
+				startActivity(intent);
 
 			}
 			catch(ActivityNotFoundException e) {

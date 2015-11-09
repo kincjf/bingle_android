@@ -15,8 +15,8 @@ android {
 
     defaultConfig {
         applicationId "net.sourceforge.opencamera"
-        minSdkVersion 19
-        targetSdkVersion 23
+        minSdkVersion 15
+        targetSdkVersion 22
 
         testApplicationId "net.sourceforge.opencamera.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
@@ -37,6 +37,15 @@ android {
         }
     }
 }
+
+
+
+
+
+
+
+
+
 
 
 

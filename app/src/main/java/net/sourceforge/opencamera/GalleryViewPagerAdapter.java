@@ -1,20 +1,17 @@
 package net.sourceforge.opencamera;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
-import net.sourceforge.opencamera.UI.GalleryViewPager;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
-
-import uk.co.senab.photoview.PhotoView;
 
 /**
  * Created by WG on 2015-11-06.
@@ -43,13 +40,16 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
     @Override
 
     public View instantiateItem(ViewGroup container, int position) {
-        PhotoView photoView = new PhotoView(container.getContext());
-        photoView.setImageResource(Integer.parseInt(urls.get(position)));
+        ImageView imageView = new ImageView(container.getContext());
+        Glide.with(context)
+                .load("file://" + urls.get(position))
+                .centerCrop()
+                .into(imageView);
 
         // Now just add PhotoView to ViewPager and return it
-        container.addView(photoView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        return photoView;
+        return imageView;
     }
 
     @Override
@@ -61,16 +61,6 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
 
-    }
-
-    private void toggleViewPagerScrolling() {
-        if (isViewPagerActive()) {
-            ((GalleryViewPager) viewPager).toggleLock();
-        }
-    }
-
-    private boolean isViewPagerActive() {
-        return (viewPager != null && viewPager instanceof GalleryViewPager);
     }
 
 

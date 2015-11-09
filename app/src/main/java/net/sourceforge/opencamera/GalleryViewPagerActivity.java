@@ -32,14 +32,13 @@ public class GalleryViewPagerActivity extends Activity{
         setContentView(viewPager);
 
         Intent intent = getIntent();
-        urls = intent.getExtras().getStringArrayList("url");
+        urls = intent.getExtras().getStringArrayList("imageList");
         galleryViewPagerAdapter = new GalleryViewPagerAdapter(GalleryViewPagerActivity.this, urls);
 
         viewPager.setAdapter(galleryViewPagerAdapter);
 
         if (savedInstanceState != null) {
             boolean isLocked = savedInstanceState.getBoolean(ISLOCKED_ARG, false);
-            ((GalleryViewPager) viewPager).setLocked(isLocked);
         }
 
     }
