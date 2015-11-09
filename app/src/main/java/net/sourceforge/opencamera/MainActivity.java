@@ -120,8 +120,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	public boolean test_have_angle = false;
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
-	int camCount=1;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		if( MyDebug.LOG ) {
@@ -977,24 +976,13 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     public void clickedTakePhoto(View view) throws JSONException {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTakePhoto");
-		if(camCount%3==0){
-			Toast.makeText(getApplicationContext(),"3장 배수 찍었어요 압축할게요",Toast.LENGTH_SHORT).show();
-			String zipPath = applicationInterface.compressFolder();
-			if(zipPath!=null){
-				Http transfer = new Http();
-				JSONObject params = new JSONObject();
-				params.put(COMMAND,CMD_UPLOAD);
-				params.put(FILE_PATH,zipPath);
 
-				transfer.execute(params);
-			}
+		if(!applicationInterface.isSaveFolder()){
+			applicationInterface.chooseFolder();
 
-		}else {
-			this.takePicture();
 		}
-		camCount++;
 
-
+		this.takePicture();
 	}
 
     public void clickedSwitchCamera(View view) {
@@ -1997,11 +1985,25 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		applicationInterface.shareLastImage();
     }
 	//카메라 촬영 시작- 디렉토리를 설정함
-	public void camStart(View view) {
+	public void clickedUpload(View view) {
 		if (MyDebug.LOG)
 			Log.d(TAG, "camStart");
-		Log.i(TAG, "CAM START");
-		applicationInterface.chooseFolder();
+
+		Toast.makeText(getApplicationContext(),"압축할게요",Toast.LENGTH_SHORT).show();
+		String zipPath = applicationInterface.compressFolder();
+		if(zipPath!=null){
+			Http transfer = new Http();
+			JSONObject params = new JSONObject();
+			try {
+				params.put(COMMAND,CMD_UPLOAD);
+				params.put(FILE_PATH,zipPath);
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			transfer.execute(params);
+		}
 
 	}
 
@@ -2692,9 +2694,14 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				status = result.getInt(STATUS);
 			} catch (JSONException e) {
 				e.printStackTrace();
+				status=500;
 			}
 
 			if(400<=status&&status<500){
+				Toast.makeText(getApplicationContext(),status+": "+getResources().getString(R.string.server_err_upload),Toast.LENGTH_SHORT).show();
+				return;
+			}
+			if(500<=status&&status<600){
 				Toast.makeText(getApplicationContext(),status+": "+getResources().getString(R.string.server_err_upload),Toast.LENGTH_SHORT).show();
 				return;
 			}
@@ -2702,6 +2709,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 			if(status==200) {
 				Toast.makeText(getApplicationContext(), getResources().getString(R.string.server_success), Toast.LENGTH_SHORT).show();
+				applicationInterface.removeSavePath();
 				return;
 			}
 

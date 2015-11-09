@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         />
-    
+
+    <!-- take a picture-->
     <ImageButton
         android:id="@+id/take_photo"
         android:layout_width="100dp"
@@ -178,7 +179,7 @@
         android:scaleType="fitCenter"
         android:contentDescription="@string/share"
         android:src="@drawable/focus_mode_manual"
-        android:onClick="camStart"
+        android:onClick="clickedUpload"
         />
 
     <SeekBar

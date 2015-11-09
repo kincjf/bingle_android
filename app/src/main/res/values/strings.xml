@@ -265,4 +265,6 @@
     <string name="server_success">Success to Transfer</string>
     <string name="server_err_default">Fail connecting. Please Reconnect</string>
     <string name="server_err_upload">Upload Error</string>
+    <string name="server_err_internal">Internal Error</string>
+
 </resources>

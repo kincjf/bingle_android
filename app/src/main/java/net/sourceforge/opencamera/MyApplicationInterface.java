@@ -2896,6 +2896,22 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		String path = sharedPreferences.getString(PreferenceKeys.getSaveLocationPreferenceKey(), "");
 		return path;
 	}
+	boolean isSaveFolder(){
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+
+		String path = sharedPreferences.getString(PreferenceKeys.getSaveLocationPreferenceKey(), "");
+		return (path==null)?false:true;
+
+	}
+	void removeSavePath(){
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+
+		editor.putString(PreferenceKeys.getSaveLocationPreferenceKey(), null);
+		editor.apply();
+
+	}
 
 	public String compressFolder(){
 		String folderPath = getSaveFolder();
@@ -2911,8 +2927,20 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		folderDelete(folderPath);
 		return zipName;
+
+	}
+	public boolean isZip(){
+		String folderPath = getSaveFolder();
+		File f = new File(folderPath);
+		File zipFile = new File(IMG_ZIP_DIR+f.getName()+".zip");
+
+		if( zipFile.exists())
+			return true;
+		else
+			return false;
+
+
 
 	}
 	public boolean folderDelete(String dirPath) {
