@@ -28,7 +28,7 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
         super.onCreate(savedInstanceState);
         Log.i(TAG, "start");
         Intent intent = getIntent();
-        filepath = intent.getExtras().getString("url");
+        filepath = intent.getExtras().getString("clickImageUrl");
 
         mClient = new GoogleApiClient.Builder(this, this, this)
                 .addApi(Panorama.API)

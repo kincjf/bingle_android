@@ -46,18 +46,19 @@ public class GalleryActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                String rutaDeLaImagen = gridViewAdapter.getItem(position).toString();
+                String clickImageUrl = gridViewAdapter.getItem(position).toString();
+
 
                 Intent intent = new Intent(GalleryActivity.this, GalleryPanoViewer.class);
-                intent.putExtra("url", rutaDeLaImagen);
+                intent.putExtra("clickImageUrl", clickImageUrl);
                 startActivity(intent);
 
-
-                /*
-                String rutaDeLaImagen = gridViewAdapter.getItem(position).toString();
+                /*  그리드 뷰 이미지 클릭시 view pager로 연동
+                String clickImageUrl = gridViewAdapter.getItem(position).toString();
 
                 Intent intent = new Intent(GalleryActivity.this, GalleryViewPagerActivity.class);
-                intent.putExtra("url", rutaDeLaImagen);
+                intent.putExtra("urls", urls);
+                intent.putExtra("clickImageUrl", position);
                 startActivity(intent);
                 */
 

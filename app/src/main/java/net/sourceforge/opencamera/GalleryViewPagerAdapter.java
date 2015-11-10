@@ -20,17 +20,18 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
     private static final String TAG = "GalleryViewPagerAdapter";
     private final Context context;
     private ArrayList<String> urls = new ArrayList<String>();
+    private int clickImageUrl;
     private ViewPager viewPager;
+    private Boolean check = false;
     LayoutInflater inflater;
 
-    public GalleryViewPagerAdapter(Context context,  ArrayList<String> url){
+    public GalleryViewPagerAdapter(Context context,  ArrayList<String> url, int clickImageUrl){
         if( MyDebug.LOG ) {
             Log.d(TAG, "load");
         }
         this.context = context;
         this.urls = url;
-
-        inflater = LayoutInflater.from(context);
+        this.clickImageUrl = clickImageUrl;
     }
 
     @Override public int getCount() {
@@ -41,10 +42,22 @@ public class GalleryViewPagerAdapter extends PagerAdapter {
 
     public View instantiateItem(ViewGroup container, int position) {
         ImageView imageView = new ImageView(container.getContext());
-        Glide.with(context)
-                .load("file://" + urls.get(position))
-                .centerCrop()
-                .into(imageView);
+
+        if(check == false) {
+            position = clickImageUrl;
+            Glide.with(context)
+                    .load("file://" + urls.get(position))
+                    .override(400, 300)
+                    .into(imageView);
+
+            check = true;
+        }else {
+            Glide.with(context)
+                    .load("file://" + urls.get(position))
+                    .override(400, 300)
+                    .into(imageView);
+        }
+
 
         // Now just add PhotoView to ViewPager and return it
         container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

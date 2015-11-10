@@ -2,6 +2,7 @@ package net.sourceforge.opencamera;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -20,6 +21,7 @@ public class GalleryViewPagerActivity extends Activity{
     private ViewPager viewPager;
     private GalleryViewPagerAdapter galleryViewPagerAdapter;
     private ArrayList<String> urls;
+    private int clickImageUrl;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,14 +34,11 @@ public class GalleryViewPagerActivity extends Activity{
         setContentView(viewPager);
 
         Intent intent = getIntent();
-        urls = intent.getExtras().getStringArrayList("imageList");
-        galleryViewPagerAdapter = new GalleryViewPagerAdapter(GalleryViewPagerActivity.this, urls);
+        urls = intent.getExtras().getStringArrayList("urls");
+        clickImageUrl = intent.getExtras().getInt("clickImageUrl");
+        galleryViewPagerAdapter = new GalleryViewPagerAdapter(GalleryViewPagerActivity.this, urls, clickImageUrl);
 
         viewPager.setAdapter(galleryViewPagerAdapter);
-
-        if (savedInstanceState != null) {
-            boolean isLocked = savedInstanceState.getBoolean(ISLOCKED_ARG, false);
-        }
 
     }
 

@@ -43,7 +43,7 @@ final class GridViewAdapter extends ArrayAdapter {
             Glide.with(context)
                     .load("file://" + urls.get(position))
                     .placeholder(R.drawable.gallery)
-                    .override(300, 300)
+                    .override(200, 200)
                     .centerCrop()
                     .into((ImageView) convertView);
         }else{
