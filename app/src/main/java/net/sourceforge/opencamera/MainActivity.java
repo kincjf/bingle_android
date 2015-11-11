@@ -31,6 +31,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -59,6 +60,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 
+import net.sourceforge.opencamera.BluetoothController.BluetoothController;
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
 import net.sourceforge.opencamera.Preview.JSONCommandInterface;
@@ -300,7 +302,18 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
 
 
+		BluetoothController blueCtrl =new BluetoothController(this,mHandler);
+		blueCtrl.enableBluetooth();
 	}
+	private  Handler mHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+		}
+
+	};
+
 	
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	private void initCamera2Support() {
