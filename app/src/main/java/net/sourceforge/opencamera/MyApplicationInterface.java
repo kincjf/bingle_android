@@ -2927,15 +2927,25 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		folderDelete(folderPath);
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+
+		editor.putString(PreferenceKeys.getSaveLocationPreferenceKey(), zipName);
+		editor.apply();
+
 		return zipName;
 
 	}
 	public boolean isZip(){
 		String folderPath = getSaveFolder();
 		File f = new File(folderPath);
-		File zipFile = new File(IMG_ZIP_DIR+f.getName()+".zip");
 
-		if( zipFile.exists())
+
+		if(!f.exists()){
+			return false;
+		}
+		if(f.isFile())
 			return true;
 		else
 			return false;

@@ -973,9 +973,12 @@ public class MainActivity extends Activity implements JSONCommandInterface{
         super.onConfigurationChanged(newConfig);
     }
 
-    public void clickedTakePhoto(View view) throws JSONException {
+    public void clickedTakePhoto(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedTakePhoto");
+
+
+
 
 		if(!applicationInterface.isSaveFolder()){
 			applicationInterface.chooseFolder();
@@ -983,6 +986,36 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 
 		this.takePicture();
+	}
+	//카메라 업로드 시작
+	public void clickedUpload(View view) {
+		if (MyDebug.LOG)
+			Log.d(TAG, "camStart");
+
+		String zipPath=null;
+		if(applicationInterface.isZip()){
+			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
+
+			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
+		}else {
+			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
+			zipPath = applicationInterface.compressFolder();
+		}
+
+		if(zipPath!=null){
+			Http transfer = new Http();
+			JSONObject params = new JSONObject();
+			try {
+				params.put(COMMAND,CMD_UPLOAD);
+				params.put(FILE_PATH,zipPath);
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			transfer.execute(params);
+		}
+
 	}
 
     public void clickedSwitchCamera(View view) {
@@ -1986,28 +2019,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "clickedShare");
 		applicationInterface.shareLastImage();
     }
-	//카메라 촬영 시작- 디렉토리를 설정함
-	public void clickedUpload(View view) {
-		if (MyDebug.LOG)
-			Log.d(TAG, "camStart");
 
-		Toast.makeText(getApplicationContext(),"압축할게요",Toast.LENGTH_SHORT).show();
-		String zipPath = applicationInterface.compressFolder();
-		if(zipPath!=null){
-			Http transfer = new Http();
-			JSONObject params = new JSONObject();
-			try {
-				params.put(COMMAND,CMD_UPLOAD);
-				params.put(FILE_PATH,zipPath);
-
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
-			transfer.execute(params);
-		}
-
-	}
 
     public void clickedTrash(View view) {
 		if( MyDebug.LOG )
