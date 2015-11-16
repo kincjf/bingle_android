@@ -22,7 +22,6 @@ public class GalleryActivity extends Activity {
     private ArrayList<String> urls;
     private GridViewAdapter gridViewAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if( MyDebug.LOG ) {

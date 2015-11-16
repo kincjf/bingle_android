@@ -93,7 +93,6 @@ public class BluetoothController implements BlueToothInterface{
     @Override
     public void connect() {
 
-
     }
 
     @Override
