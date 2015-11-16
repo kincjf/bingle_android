@@ -78,6 +78,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import app.akexorcist.bluetotohspp.library.BluetoothSPP;
+import app.akexorcist.bluetotohspp.library.BluetoothState;
+import app.akexorcist.bluetotohspp.library.DeviceList;
+
 public class MainActivity extends Activity implements JSONCommandInterface{
 	private static final String TAG = "MainActivity";
 	private SensorManager mSensorManager = null;
@@ -304,6 +308,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		BluetoothController blueCtrl =new BluetoothController(this,mHandler);
 		blueCtrl.enableBluetooth();
+
 	}
 	private  Handler mHandler = new Handler() {
 
@@ -313,6 +318,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 
 	};
+
 
 	
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
