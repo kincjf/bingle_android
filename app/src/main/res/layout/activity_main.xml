@@ -182,6 +182,15 @@
         android:onClick="clickedUpload"
         />
 
+    <ImageButton
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/bt_remote"
+        android:onClick="clickedBTRemote"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:layout_marginTop="100dp" />
+
     <SeekBar
         android:id="@+id/exposure_seekbar"
         android:contentDescription="@string/exposure_compensation"
@@ -229,7 +238,17 @@
         android:id="@+id/locker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        >
+
+        <ScrollView
+            android:id="@+id/hide_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="left|top"
+            android:fillViewport="false">
+
+        </ScrollView>
+    </FrameLayout>
 
     <ScrollView
         android:id="@+id/popup_container"
@@ -238,13 +257,5 @@
         android:layout_toLeftOf="@+id/settings"
         android:layout_below="@+id/settings"
         />
-    
-    <ScrollView
-        android:id="@+id/hide_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-    </ScrollView>
 
 </RelativeLayout>

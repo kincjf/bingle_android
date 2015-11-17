@@ -1,12 +1,21 @@
 package net.sourceforge.opencamera.BluetoothController;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
+
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
+import net.sourceforge.opencamera.MainActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothSPP.BluetoothConnectionListener;
@@ -135,6 +144,58 @@ public class BluetoothController implements BlueToothInterface {
 //            enableBluetooth();
 
         }
+    }
+
+    //블루투스 장비 페이링 확인
+    public void pairedDevice(){
+        Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
+        List<String> listItems = new ArrayList<String>();
+
+        if(pairedDevices.size() > 0){
+            for(BluetoothDevice device : pairedDevices){
+                //페어링된 장치 이름과, MAC주소를 가져올 수 있다.
+                Log.d(TAG, device.getName().toString() +" Device Is Connected!");
+                Log.d(TAG, device.getAddress().toString() + " Device Is Connected!");
+                //listItems.add(device : pairedDevices);
+
+            }
+            listItems.add("취소");
+
+            selectDevice(listItems);
+
+        }else {
+            Log.d(TAG, "No PairedDevices");
+        }
+    }
+
+
+
+    //블루투스 장비 선택
+    public void selectDevice(List<String> listItems) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setTitle("블루투스 장치 선택");
+
+        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+        /*
+        builder.setItems(items. {
+            public void onClick(DialogInterface dialog, int item) {
+                if(item == mPairedDeviceCount) {
+                    // 연결할 장치를 선택하지 않고 '취소'를 누른 경우
+                    finish();
+                }
+                else {
+                    // 연결할 장치를 선택한 경우
+                    // 선택한 장치와 연결을 시도함
+                    connectToSelectedDevices(items[item].toString());
+                }
+            }
+        });
+        */
+
+        builder.setCancelable(false);    // 뒤로 가기 버튼 사용 금지
+        AlertDialog alert = builder.create();
+        alert.show();
+
     }
 
 

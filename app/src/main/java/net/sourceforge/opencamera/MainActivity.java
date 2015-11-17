@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothDevice;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -103,6 +104,9 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 	//gallery
 	private ImageView imageView = null;
+
+	//bt_remote
+	private BluetoothController bluetoothController = null;
 
     private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
@@ -1034,6 +1038,23 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 			transfer.execute(params);
 		}
+
+	}
+
+	//블루투스 리모콘 연결
+	public void clickedBTRemote(View view) {
+		if (MyDebug.LOG)
+			Log.d(TAG, "BTRemote Strat");
+
+
+
+		if(bluetoothController == null) {
+			bluetoothController = new BluetoothController(this, mHandler);
+		}
+
+		bluetoothController.enableBluetooth();
+
+
 
 	}
 
