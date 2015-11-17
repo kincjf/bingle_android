@@ -23,6 +23,7 @@ public class CommandFactory {
         ICommand command = null;
         byte key = data[1];
 
+        // switch문으로 바꾸자
         if (key == SBGCProtocol.CMD_BOARD_INFO) {
             command = new ParseBoardInfo();
         } else if (key == SBGCProtocol.CMD_READ_PARAMS) {
@@ -50,6 +51,7 @@ public class CommandFactory {
     public ICommand createOutgoingCommand(byte key) {
         ICommand command = null;
 
+        // switch문으로 바꾸자
         if (key == SBGCProtocol.CMD_BOARD_INFO ) {
             command = new RequestBoardInfo();
         } else if (key == SBGCProtocol.CMD_READ_PARAMS) {

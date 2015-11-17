@@ -124,23 +124,6 @@ public class SBGCProtocol extends ProtocolUtil {
     }
 
     /**
-     * Handles and delegates the received data
-     *
-     * WORK IN PROGRESS: Most commands are not yet implemented!
-     *
-     * @param data
-     *            received data with header
-     * @return true if checksum of 'data' is valid
-     */
-    public boolean handleData(byte[] data) {
-        boolean retVar = false;
-
-        // 사용법에 대하여 알았으면 IncommandAction만 쓰기
-        action.IncommandAction(data);
-        return retVar;
-    }
-
-    /**
      * [WRAPPER FOR turnTo()] Sends a control command (angle mode) to the board
      * with the given parameters, movement speed uses default settings [30
      * degree/sec].
