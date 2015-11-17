@@ -32,8 +32,7 @@ public class ProtocolUtil {
 	protected static final int HEADER_CHECKSUM_POS = 3;
 	public static final int BODY_DATA_POS = 4;
 
-	public static int readPosition = BODY_DATA_POS; // must be 4 because of
-														// the header
+	public static int readPosition = BODY_DATA_POS; // must be 4 because of the header
 
 	/**
 	 * Reads the next word in the data array

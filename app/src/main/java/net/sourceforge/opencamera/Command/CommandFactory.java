@@ -40,6 +40,8 @@ public class CommandFactory {
             command = new ParseConfirmValue();
         } else if (key == SBGCProtocol.CMD_GET_ANGLES) {
             command = new ParseAngles();
+        } else {
+            command = new NullCommand();
         }
 
         return command;
@@ -60,6 +62,8 @@ public class CommandFactory {
             command = new RequestMotorOn();
         } else if (key == SBGCProtocol.CMD_MOTORS_OFF) {
             command = new RequestMotorOff();
+        } else {
+            command = new NullCommand();
         }
 
         return command;

@@ -18,7 +18,7 @@ public class SBGCProtocol extends ProtocolUtil {
     static int boardVersion = 0;
     public static int defaultTurnSpeed = 30;
 
-    public CommandAction action = new CommandAction();
+    public static CommandAction action = new CommandAction();
 
     protected static RealtimeDataStructure realtimeData = RealtimeDataStructure.getRealtimeData();
 
@@ -97,26 +97,18 @@ public class SBGCProtocol extends ProtocolUtil {
      * Requests the board information (firmware version)
      */
     public static boolean initSBGCProtocol() {
-        short ms = 100;
 
-//		while (boardFirmware != "unknown") {
-//			requestBoardInfo();
-        wait(100);
-//			requestBoardInfo(ms);
-//			wait(100);
-//			requestReadParams(1);
-//			wait(100);
+		while (boardFirmware != "unknown") {
+			requestBoardInfo();
+            wait(100);
+
         // TODO Add a timeout
-//		}
-        wait(50);
-//		requestBoardParams();
-        wait(100);
+		}
 
         // we are starting in RC Mode
-//		setCurrentMode(MODE_RC);
+		setCurrentMode(MODE_RC);
 
         return (boardFirmware != "unknown");
-
     }
 
     /**
@@ -214,7 +206,7 @@ public class SBGCProtocol extends ProtocolUtil {
      * Requests board information like firmware
      */
     public static void requestBoardInfo() {
-        sendCommand(CMD_BOARD_INFO);
+        action.OutgoingAction(CMD_BOARD_INFO);
     }
 
     /**
@@ -223,7 +215,7 @@ public class SBGCProtocol extends ProtocolUtil {
     public static void requestReadParams(int profileID) {
         byte profileByte[] = new byte[1];
         profileByte[0] = (byte) (profileID);
-        sendCommand(CMD_READ_PARAMS, profileByte);
+        action.OutgoingAction(CMD_READ_PARAMS, profileByte);
     }
 
     /**
@@ -235,15 +227,14 @@ public class SBGCProtocol extends ProtocolUtil {
         word[0] = (byte) ((short) ms & 0xffff);
         word[1] = (byte) (((short) ms >>> 8) & 0xffff);
 
-        sendCommand(CMD_BOARD_INFO, word);
+        action.OutgoingAction(CMD_BOARD_INFO, word);
     }
 
     /**
      * Requests board params like profiles
      */
     public static void requestBoardParams() {
-        sendCommand(CMD_READ_PARAMS);
-
+        action.OutgoingAction(CMD_READ_PARAMS);
     }
 
     /**
@@ -291,21 +282,21 @@ public class SBGCProtocol extends ProtocolUtil {
      * Sends a command to the board to turn on the motors
      */
     public void requestMotorOn() {
-        sendCommand(CMD_MOTORS_ON);
+        action.OutgoingAction(CMD_MOTORS_ON);
     }
 
     /**
      * Sends a command to the board to turn off the motors
      */
     public void requestMotorOff() {
-        sendCommand(CMD_MOTORS_OFF);
+        action.OutgoingAction(CMD_MOTORS_OFF);
     }
 
     /**
      * Requests the board current parameters
      */
     public void requestBoardParameters() {
-        sendCommand(CMD_READ_PARAMS);
+        action.OutgoingAction(CMD_READ_PARAMS);
     }
 
     /**
@@ -313,7 +304,7 @@ public class SBGCProtocol extends ProtocolUtil {
      * a specific frequency
      */
     public void requestRealtimeData() {
-        sendCommand(CMD_REALTIME_DATA_3);		// change CMD_REALTIME_DATA to CMD_READTIME_DATA_3
+        action.OutgoingAction(CMD_REALTIME_DATA_3);		// change CMD_REALTIME_DATA to CMD_READTIME_DATA_3
     }
 
     /**
@@ -325,7 +316,7 @@ public class SBGCProtocol extends ProtocolUtil {
         byte profileByte[] = new byte[1];
         profileByte[0] = (byte) (profileID);
         Log.d(TAG, "changeProfile(" + profileID + ")");
-        sendCommand(CMD_EXECUTE_MENU, profileByte);
+        action.OutgoingAction(CMD_EXECUTE_MENU, profileByte);
     }
 
     /**
