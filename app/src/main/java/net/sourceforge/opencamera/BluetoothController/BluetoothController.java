@@ -20,6 +20,7 @@ import java.util.Set;
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothSPP.BluetoothConnectionListener;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
+import app.akexorcist.bluetotohspp.library.DeviceList;
 
 
 /**
@@ -146,6 +147,7 @@ public class BluetoothController implements BlueToothInterface {
         }
     }
 
+
     //블루투스 장비 페이링 확인
     public void pairedDevice(){
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
@@ -161,8 +163,6 @@ public class BluetoothController implements BlueToothInterface {
             }
             listItems.add("취소");
 
-            selectDevice(listItems);
-
         }else {
             Log.d(TAG, "No PairedDevices");
         }
@@ -171,33 +171,17 @@ public class BluetoothController implements BlueToothInterface {
 
 
     //블루투스 장비 선택
-    public void selectDevice(List<String> listItems) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setTitle("블루투스 장치 선택");
+    public void selectDevice() {
+        Log.d(TAG, "selectDevice");
 
-        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
-        /*
-        builder.setItems(items. {
-            public void onClick(DialogInterface dialog, int item) {
-                if(item == mPairedDeviceCount) {
-                    // 연결할 장치를 선택하지 않고 '취소'를 누른 경우
-                    finish();
-                }
-                else {
-                    // 연결할 장치를 선택한 경우
-                    // 선택한 장치와 연결을 시도함
-                    connectToSelectedDevices(items[item].toString());
-                }
-            }
-        });
-        */
-
-        builder.setCancelable(false);    // 뒤로 가기 버튼 사용 금지
-        AlertDialog alert = builder.create();
-        alert.show();
-
+        intent = new Intent(mActivity, DeviceList.class);
+        mActivity.startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
     }
 
+    //블루투스 활성화 확인
+    public boolean isBluetoothEanble(){
+        return bluetooth.isBluetoothEnabled();
+    }
 
     @Override
     public void receive() {

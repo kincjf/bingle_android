@@ -1047,15 +1047,20 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "BTRemote Strat");
 
 
-
 		if(bluetoothController == null) {
 			bluetoothController = new BluetoothController(this, mHandler);
 		}
 
-		bluetoothController.enableBluetooth();
+		if(bluetoothController.isBluetoothEanble()){
+			if (MyDebug.LOG)
+				Log.d(TAG, "BTRemote Scan Divices");
 
+			bluetoothController.selectDevice();
+		}else {
+			if (MyDebug.LOG)
+				Log.d(TAG, "Bluetooth is not available");
 
-
+		}
 	}
 
     public void clickedSwitchCamera(View view) {
