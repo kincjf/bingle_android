@@ -244,7 +244,7 @@
             android:id="@+id/hide_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="left|top"
+            android:layout_gravity="right|top"
             android:fillViewport="false">
 
         </ScrollView>
