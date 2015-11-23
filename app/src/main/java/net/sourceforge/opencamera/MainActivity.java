@@ -1051,7 +1051,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			bluetoothController = new BluetoothController(this, mHandler);
 		}
 
-		if(bluetoothController.isBluetoothEanble()){
+		if(bluetoothController.getIsBluetoothEanble()){
 			if (MyDebug.LOG)
 				Log.d(TAG, "BTRemote Scan Divices");
 

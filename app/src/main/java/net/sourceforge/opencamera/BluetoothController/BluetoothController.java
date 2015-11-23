@@ -60,14 +60,17 @@ public class BluetoothController implements BlueToothInterface {
                 bluetooth.setBluetoothConnectionListener(new BluetoothConnectionListener() {
                     public void onDeviceConnected(String name, String address) {
                         // Do something when successfully connected
+                        Log.i(TAG, "Status : Connected to " + name);
                     }
 
                     public void onDeviceDisconnected() {
                         // Do something when connection was disconnected
+                        Log.i(TAG, "Status : Not connect");
                     }
 
                     public void onDeviceConnectionFailed() {
                         // Do something when connection failed
+                        Log.i(TAG, "Status : Connection failed");
                     }
                 });
 
@@ -172,14 +175,14 @@ public class BluetoothController implements BlueToothInterface {
 
     //블루투스 장비 선택
     public void selectDevice() {
-        Log.d(TAG, "selectDevice");
+        Log.d(TAG, "selectDevice()");
 
         intent = new Intent(mActivity, DeviceList.class);
         mActivity.startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
     }
 
     //블루투스 활성화 확인
-    public boolean isBluetoothEanble(){
+    public boolean getIsBluetoothEanble(){
         return bluetooth.isBluetoothEnabled();
     }
 
