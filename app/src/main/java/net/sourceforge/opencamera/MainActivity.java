@@ -103,7 +103,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	private ImageView imageView = null;
 
 	//bt_remote
-	private BluetoothController bluetoothController = null;
+	private BluetoothController blueCtrl = null;
 
     private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
@@ -128,7 +128,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
 
-	BluetoothController blueCtrl;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		if( MyDebug.LOG ) {
@@ -137,6 +136,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     	long time_s = System.currentTimeMillis();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		blueCtrl = new BluetoothController(this,mHandler);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		if( getIntent() != null && getIntent().getExtras() != null ) {
@@ -308,7 +308,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
 
 
-		blueCtrl = new BluetoothController(this,mHandler);
+
 
 
 	}
@@ -385,6 +385,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	    	textToSpeech = null;
 	    }
 	    super.onDestroy();
+		//블루투스 서비스 정지
+		blueCtrl.stopService();
 	}
 	
 	@Override
@@ -1050,28 +1052,29 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 	//블루투스 리모콘 연결
 	public void clickedBTRemote(View view) {
-<<<<<<< HEAD
+
 		if (MyDebug.LOG)
 			Log.d(TAG, "BTRemote Strat");
 
 
-		if(bluetoothController == null) {
-			bluetoothController = new BluetoothController(this, mHandler);
+		if(blueCtrl == null) {
+			Log.d(TAG, "BTRemot - BluetoothControoler :" + blueCtrl);
+			blueCtrl = new BluetoothController(this, mHandler);
 		}
 
-		if(bluetoothController.getIsBluetoothEanble()){
+		if(blueCtrl.getIsBluetoothEanble()){
 			if (MyDebug.LOG)
 				Log.d(TAG, "BTRemote Scan Divices");
 
-			bluetoothController.selectDevice();
+				blueCtrl.searchDevice();
 		}else {
 			if (MyDebug.LOG)
 				Log.d(TAG, "Bluetooth is not available");
 
 		}
-=======
-		blueCtrl.searchDevice();
->>>>>>> ef45e4442d8b2aba7ecd65ed4d3719bdac2e48d8
+
+
+
 	}
 
     public void clickedSwitchCamera(View view) {
