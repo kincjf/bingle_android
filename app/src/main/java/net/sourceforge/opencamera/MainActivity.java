@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothDevice;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -79,9 +78,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
-import app.akexorcist.bluetotohspp.library.DeviceList;
 
 public class MainActivity extends Activity implements JSONCommandInterface{
 	private static final String TAG = "MainActivity";
@@ -131,6 +128,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
 
+	BluetoothController blueCtrl;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		if( MyDebug.LOG ) {
@@ -310,8 +308,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
 
 
-		BluetoothController blueCtrl =new BluetoothController(this,mHandler);
-		blueCtrl.enableBluetooth();
+		blueCtrl = new BluetoothController(this,mHandler);
+
 
 	}
 	private  Handler mHandler = new Handler() {
@@ -514,6 +512,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
         return super.onKeyDown(keyCode, event); 
     }
+	public void onStart() {
+		super.onStart();
+		blueCtrl.enableBluetooth();
+	}
 	
 	void setSeekbarZoom() {
 		if( MyDebug.LOG )
@@ -955,6 +957,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			view.setImageResource(resource);
 			view.setTag(resource); // for testing
 		}
+
     }
     
     boolean getUIPlacementRight() {
@@ -1012,55 +1015,42 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	}
 	//카메라 업로드 시작
 	public void clickedUpload(View view) {
-		if (MyDebug.LOG)
-			Log.d(TAG, "camStart");
 
-		String zipPath=null;
-		if(applicationInterface.isZip()){
-			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
-
-			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
-		}else {
-			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
-			zipPath = applicationInterface.compressFolder();
-		}
-
-		if(zipPath!=null){
-			Http transfer = new Http();
-			JSONObject params = new JSONObject();
-			try {
-				params.put(COMMAND,CMD_UPLOAD);
-				params.put(FILE_PATH,zipPath);
-
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
-			transfer.execute(params);
-		}
+		blueCtrl.send();
+//		if (MyDebug.LOG)
+//			Log.d(TAG, "camStart");
+//
+//		String zipPath=null;
+//		if(applicationInterface.isZip()){
+//			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
+//
+//			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
+//		}else {
+//			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
+//			zipPath = applicationInterface.compressFolder();
+//		}
+//
+//		if(zipPath!=null){
+//			Http transfer = new Http();
+//			JSONObject params = new JSONObject();
+//			try {
+//				params.put(COMMAND,CMD_UPLOAD);
+//				params.put(FILE_PATH,zipPath);
+//
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//
+//			transfer.execute(params);
+//		}
 
 	}
 
+
+
 	//블루투스 리모콘 연결
 	public void clickedBTRemote(View view) {
-		if (MyDebug.LOG)
-			Log.d(TAG, "BTRemote Strat");
-
-
-		if(bluetoothController == null) {
-			bluetoothController = new BluetoothController(this, mHandler);
-		}
-
-		if(bluetoothController.isBluetoothEanble()){
-			if (MyDebug.LOG)
-				Log.d(TAG, "BTRemote Scan Divices");
-
-			bluetoothController.selectDevice();
-		}else {
-			if (MyDebug.LOG)
-				Log.d(TAG, "Bluetooth is not available");
-
-		}
+		blueCtrl.searchDevice();
 	}
 
     public void clickedSwitchCamera(View view) {
@@ -1916,6 +1906,12 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     			preview.showToast(null, R.string.saf_cancelled);
     		}
         }
+		// 블루투스 관련
+		else if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
+			blueCtrl.onActivityResult(requestCode,resultCode,resultData);
+		} else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
+			blueCtrl.onActivityResult(requestCode,resultCode,resultData);
+		}
     }
 
     private void openFolderChooserDialog() {

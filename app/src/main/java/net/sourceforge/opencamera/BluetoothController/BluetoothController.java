@@ -1,17 +1,14 @@
 package net.sourceforge.opencamera.BluetoothController;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
-
+import android.widget.Toast;
 
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
-import net.sourceforge.opencamera.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +30,9 @@ public class BluetoothController implements BlueToothInterface {
     private Handler mHandler;
     private BluetoothAdapter btAdapter;
 
-    private static BluetoothSPP bluetooth;
+    static BluetoothSPP bt;
+
+//    private static BluetoothSPP bluetooth;
     Intent intent;
 
     private static final int REQUEST_ENABLE_BT = 2;
@@ -44,51 +43,91 @@ public class BluetoothController implements BlueToothInterface {
         mHandler = handle;
         // BluetoothAdapter 얻기
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        bluetooth = new BluetoothSPP(activity);
+        bt = new BluetoothSPP(activity);
+
+        bt.setBluetoothConnectionListener(new BluetoothConnectionListener() {
+            public void onDeviceConnected(String name, String address) {
+                Toast.makeText(mActivity
+                        , "Connected to " + name
+                        , Toast.LENGTH_SHORT).show();
+            }
+
+            public void onDeviceDisconnected() {
+                Toast.makeText(mActivity
+                        , "Connection lost"
+                        , Toast.LENGTH_SHORT).show();
+            }
+
+            public void onDeviceConnectionFailed() {
+                Log.i("Check", "Unable to connect");
+            }
+        });
+        bt.setAutoConnectionListener(new BluetoothSPP.AutoConnectionListener() {
+            public void onNewConnection(String name, String address) {
+                Log.i("Check", "New Connection - " + name + " - " + address);
+            }
+
+            public void onAutoConnectionStarted() {
+                Log.i("Check", "Auto menu_connection started");
+            }
+        });
+
+        bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
+            @Override
+            public void onDataReceived(byte[] data, String message) {
+                if (SBGCProtocol.action.IncommandAction(data)) {
+                    Log.d(TAG, "Received Message: " + message);
+                } else {
+                    Log.d(TAG, "Received ERROR - unknown command : " + message);
+                }
+            }
+        });
+
+
+
 
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
             if(resultCode == Activity.RESULT_OK)
-                bluetooth.connect(data);
+                bt.connect(data);
         } else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
             if(resultCode == Activity.RESULT_OK) {
-                bluetooth.setupService();
-                bluetooth.startService(BluetoothState.DEVICE_ANDROID);
-//                setup();
-                bluetooth.setBluetoothConnectionListener(new BluetoothConnectionListener() {
-                    public void onDeviceConnected(String name, String address) {
-                        // Do something when successfully connected
-                    }
-
-                    public void onDeviceDisconnected() {
-                        // Do something when connection was disconnected
-                    }
-
-                    public void onDeviceConnectionFailed() {
-                        // Do something when connection failed
-                    }
-                });
-
-                bluetooth.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
-                    @Override
-                    public void onDataReceived(byte[] data, String message) {
-                        if(SBGCProtocol.action.IncommandAction(data)) {
-                            Log.d(TAG, "Received Message: " + message);
-                        } else {
-                            Log.d(TAG, "Received ERROR - unknown command : " + message);
-                        }
-                    }
-                });
+                bt.setupService();
+                bt.startService(BluetoothState.DEVICE_OTHER);
             } else {
-                // Do something if user doesn't choose any device (Pressed back)
+                Toast.makeText(mActivity
+                        , "Bluetooth was not enabled."
+                        , Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    public void searchDevice(){
+
+        if(bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
+            bt.disconnect();
+        } else {
+            bt.setDeviceTarget(BluetoothState.DEVICE_OTHER);
+
+            Intent intent = new Intent(mActivity, DeviceList.class);
+            mActivity.startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+//            Toast.makeText(mActivity
+//                    , "what is this"
+//                    , Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public static BluetoothSPP getBluetooth() {
-        return bluetooth;
+        if(bt!= null){
+            Log.i(TAG,"is bluetooth");
+
+        }else{
+            Log.i(TAG,"is not bluetooth");
+
+        }
+        return bt;
     }
 
 
@@ -127,23 +166,14 @@ public class BluetoothController implements BlueToothInterface {
 
         Log.i(TAG, "Check the enabled Bluetooth");
 
-
-        if(btAdapter.isEnabled()) {
-            // 기기의 블루투스 상태가 On인 경우
-            Log.d(TAG, "Bluetooth Enable Now");
-
-//            intent = new Intent(mActivity, DeviceList.class);
-//
-//            mActivity.startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-            // Next Step
+        if(!bt.isBluetoothEnabled()) {
+            bt.enable();
         } else {
-            // 기기의 블루투스 상태가 Off인 경우
-            Log.d(TAG, "Bluetooth Enable Request");
-
-            Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            mActivity.startActivityForResult(i, REQUEST_ENABLE_BT);
-//            enableBluetooth();
-
+            if(!bt.isServiceAvailable()) {
+                bt.setupService();
+                bt.startService(BluetoothState.DEVICE_OTHER);
+//                setup();
+            }
         }
     }
 
@@ -174,13 +204,15 @@ public class BluetoothController implements BlueToothInterface {
     public void selectDevice() {
         Log.d(TAG, "selectDevice");
 
+        bt.setDeviceTarget(BluetoothState.DEVICE_OTHER);
+
         intent = new Intent(mActivity, DeviceList.class);
         mActivity.startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
     }
 
     //블루투스 활성화 확인
     public boolean isBluetoothEanble(){
-        return bluetooth.isBluetoothEnabled();
+        return bt.isBluetoothEnabled();
     }
 
     @Override
@@ -190,6 +222,13 @@ public class BluetoothController implements BlueToothInterface {
 
     @Override
     public void send() {
+        SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_BOARD_INFO);
+
+        Log.i(TAG,"zzzzzzxzxxzx");
+//        byte []sendData = new byte[1];
+//        sendData[0]=SBGCProtocol.CMD_BOARD_INFO;
+//
+//        bt.send(sendData,true);
 
     }
 
