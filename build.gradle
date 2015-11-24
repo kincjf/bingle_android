@@ -8,9 +8,9 @@ buildscript {
 
     }
 }
-
 allprojects {
     repositories {
         jcenter()
     }
 }
+
