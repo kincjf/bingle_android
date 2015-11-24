@@ -168,7 +168,7 @@ public class SBGCProtocol extends ProtocolUtil {
      * @param yawSpeed
      *            [0-???]
      */
-    public void requestMoveGimbalTo(int roll, int pitch, int yaw,
+    public static void requestMoveGimbalTo(int roll, int pitch, int yaw,
                                     int rollSpeed, int pitchSpeed, int yawSpeed, int mode) {
         ByteBuffer buff = ByteBuffer.allocate((Integer.SIZE / 8) * 7);
         buff.order(ByteOrder.LITTLE_ENDIAN);

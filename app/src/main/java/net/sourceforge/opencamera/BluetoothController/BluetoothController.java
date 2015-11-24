@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.sourceforge.opencamera.Data.Serial.ProtocolUtil;
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
@@ -71,6 +72,7 @@ public class BluetoothController implements BlueToothInterface {
             @Override
             public void onDataReceived(byte[] data, String message) {
                 if (SBGCProtocol.action.IncommandAction(data)) {
+                    Log.d(TAG, "Received Message: " + ProtocolUtil.getFirmwareVersion(data));
                     Log.d(TAG, "Received Message: " + message);
                 } else {
                     Log.d(TAG, "Received ERROR - unknown command : " + message);
@@ -198,10 +200,14 @@ public class BluetoothController implements BlueToothInterface {
         SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_BOARD_INFO);
 
         Log.i(TAG,"zzzzzzxzxxzx");
-//        byte []sendData = new byte[1];
+        byte []sendData = new byte[1];
 //        sendData[0]=SBGCProtocol.CMD_BOARD_INFO;
-//
+        sendData[0]=SBGCProtocol.CMD_MOTORS_ON;
+
 //        bt.send(sendData,true);
+//        SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_MOTORS_ON);
+//        SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_CONTROL,);
+        SBGCProtocol.requestMoveGimbalTo(0,0,100,0,0,10,1);
 
     }
 
