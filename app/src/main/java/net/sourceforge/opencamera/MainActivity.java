@@ -52,6 +52,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -216,7 +217,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 
 		clearSeekBar();
-		
+
         preview = new Preview(applicationInterface, savedInstanceState, ((ViewGroup) this.findViewById(R.id.preview)));
 		
 	    View switchCameraButton = (View) findViewById(R.id.switch_camera);
@@ -306,8 +307,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		if( MyDebug.LOG )
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
-
-
 
 
 
@@ -511,6 +510,43 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				this.zoomOut();
 	            return true;
 			}
+
+		//블루투스 리모콘(GameMode) 관련 KeyEvent 처리
+		case KeyEvent.KEYCODE_DPAD_UP:
+			{
+				return true;
+			}
+		case KeyEvent.KEYCODE_DPAD_DOWN:
+			{
+				return true;
+			}
+		case KeyEvent.KEYCODE_DPAD_LEFT:
+			{
+				return true;
+			}
+		case KeyEvent.KEYCODE_DPAD_RIGHT:
+			{
+				return true;
+			}
+		case KeyEvent.KEYCODE_BUTTON_X:
+			{
+				if( event.getRepeatCount() == 0 ) {
+					takePicture();
+					return true;
+				}
+			}
+		case KeyEvent.KEYCODE_BUTTON_Y:
+			{
+				ImageButton iBtn = (ImageButton)findViewById(R.id.switch_video);
+				iBtn.performClick();
+				return true;
+			}
+		case KeyEvent.KEYCODE_BUTTON_A:
+			{
+				return true;
+			}
+
+
 		}
         return super.onKeyDown(keyCode, event); 
     }
@@ -1095,6 +1131,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		    switchCameraButton.setEnabled(false); // prevent slowdown if user repeatedly clicks
 			this.preview.setCamera(cameraId);
 		    switchCameraButton.setEnabled(true);
+
 		}
     }
 
@@ -1111,6 +1148,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		if( !block_startup_toast ) {
 			this.showPhotoVideoToast();
 		}
+
     }
 
     public void setPopupIcon() {
