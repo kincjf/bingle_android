@@ -4,8 +4,9 @@ import net.sourceforge.opencamera.Data.Serial.IStructure;
 
 /**
  * CMD_CONTROL - control gimbal movement
+ * 
  */
-public class ControlCommandStructure implements IStructure {
+public class ControlStructure implements IStructure {
 
 	public static final int MODE_NO_CONTROL = 0;
 	public static final int MODE_SPEED = 1;
@@ -23,9 +24,9 @@ public class ControlCommandStructure implements IStructure {
 	private static int angleYaw = 0;
 	private static byte[] controlData = new byte[13];
 
-	public byte[] getControlStructure() {
-		return getCmdControlDataArray();
-	}
+//	public byte[] getControlStructure() {
+//		return getCmdControlDataArray();
+//	}
 
 	private static byte getFirstByte(int i) {
 		return (byte) (i & 0xff);
@@ -74,7 +75,6 @@ public class ControlCommandStructure implements IStructure {
 			controlData[10] = getSecondByte(speedYaw);
 			controlData[11] = getFirstByte(angleYaw);
 			controlData[12] = getSecondByte(angleYaw);
-
 		}
 
 		return controlData;
