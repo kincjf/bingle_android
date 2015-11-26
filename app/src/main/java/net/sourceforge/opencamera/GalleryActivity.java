@@ -47,6 +47,7 @@ public class GalleryActivity extends Activity implements GoogleApiClient.Connect
         gridView = (GridView)findViewById(R.id.iv_grid);
         gridViewAdapter = new GridViewAdapter(GalleryActivity.this, urls);
         gridView.setSelector(new StateListDrawable()); // image 선택시 생기는 여백 제거
+
         try{
             gridView.setAdapter(gridViewAdapter);
         }catch (OutOfMemoryError E) {
@@ -66,12 +67,11 @@ public class GalleryActivity extends Activity implements GoogleApiClient.Connect
 
 
                 mClient.connect();
-
-
-//                Intent intent = new Intent(GalleryActivity.this, GalleryPanoViewer.class);
-//                intent.putExtra("clickImageUrl", clickImageUrl);
-//                startActivity(intent);
-
+/*
+                Intent intent = new Intent(GalleryActivity.this, GalleryPanoViewer.class);
+                intent.putExtra("clickImageUrl", clickImageUrl);
+                startActivity(intent);
+*/
                 /*  그리드 뷰 이미지 클릭시 view pager로 연동
                 String clickImageUrl = gridViewAdapter.getItem(position).toString();
 
@@ -112,13 +112,13 @@ public class GalleryActivity extends Activity implements GoogleApiClient.Connect
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-
+    public void onConnectionSuspended(int cause) {
+        Log.i(TAG, "connection suspended: " + cause);
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
+    public void onConnectionFailed(ConnectionResult status) {
+        Log.e(TAG, "connection failed: " + status);
     }
 
     @Override
@@ -134,4 +134,6 @@ public class GalleryActivity extends Activity implements GoogleApiClient.Connect
         }
         Log.i(TAG, "resultCode : " + resultCode);
     }
+
+
 }

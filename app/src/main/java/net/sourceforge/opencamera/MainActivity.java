@@ -105,6 +105,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 	//bt_remote
 	private BluetoothController blueCtrl = null;
+	private boolean bDoubleCheck = false;
 
     private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
@@ -315,6 +316,9 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		@Override
 		public void handleMessage(Message msg) {
+			if(msg.what == 0){ //블루투스 리모콘 두번 클릭 체크시
+				bDoubleCheck = false;
+			}
 			super.handleMessage(msg);
 		}
 
@@ -403,7 +407,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		editor.apply();
 	}
 
-	public boolean onKeyDown(int keyCode, KeyEvent event) { 
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onKeyDown: " + keyCode);
 		switch( keyCode ) {
@@ -530,10 +534,17 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			}
 		case KeyEvent.KEYCODE_BUTTON_X:
 			{
-				if( event.getRepeatCount() == 0 ) {
-					takePicture();
+				if(!bDoubleCheck){
+					if( event.getRepeatCount() == 0 ) {
+						takePicture();
+					}
+					bDoubleCheck = true;
+					mHandler.sendEmptyMessageDelayed(0,1500);
 					return true;
+				}else {
+					finish();
 				}
+
 			}
 		case KeyEvent.KEYCODE_BUTTON_Y:
 			{
