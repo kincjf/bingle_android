@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
-import net.sourceforge.opencamera.Data.Serial.ProtocolUtil;
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
@@ -72,13 +71,14 @@ public class BluetoothController implements BlueToothInterface {
             @Override
             public void onDataReceived(byte[] data, String message) {
                 if (SBGCProtocol.action.IncommandAction(data)) {
-                    Log.d(TAG, "Received Message: " + ProtocolUtil.getFirmwareVersion(data));
+//                    Log.d(TAG, "Received Message: " + ProtocolUtil.getFirmwareVersion(data));
                     Log.d(TAG, "Received Message: " + message);
                 } else {
                     Log.d(TAG, "Received ERROR - unknown command : " + message);
                 }
             }
         });
+        SBGCProtocol.initSBGCProtocol();
 
 
 
@@ -134,7 +134,9 @@ public class BluetoothController implements BlueToothInterface {
 
 
     @Override
-    public void turnClockWise() {
+    public void turnClockWise(int yaw,int pitch) {
+
+        SBGCProtocol.requestMoveGimbalTo(0,pitch,yaw);
 
     }
 
@@ -195,9 +197,11 @@ public class BluetoothController implements BlueToothInterface {
 
     }
 
+    boolean kakaka=true;
+    int val = 90;
     @Override
     public void send() {
-        SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_BOARD_INFO);
+//        SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_BOARD_INFO);
 
         Log.i(TAG,"zzzzzzxzxxzx");
         byte []sendData = new byte[1];
@@ -205,9 +209,20 @@ public class BluetoothController implements BlueToothInterface {
         sendData[0]=SBGCProtocol.CMD_MOTORS_ON;
 
 //        bt.send(sendData,true);
-//        SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_MOTORS_ON);
+//        if(kakaka){
+//            SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_MOTORS_OFF);
+//            kakaka=!kakaka;
+//        }else{
+//            SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_MOTORS_ON);
+//            kakaka=!kakaka;
+//
+//        }
+
+        SBGCProtocol.initSBGCProtocol();
+val+=10;
+        SBGCProtocol.requestMoveGimbalTo(0,10,val);
 //        SBGCProtocol.action.OutgoingAction(SBGCProtocol.CMD_CONTROL,);
-        SBGCProtocol.requestMoveGimbalTo(0,0,100,0,0,10,1);
+//        SBGCProtocol.requestMoveGimbalTo(0,0,100,0,0,10,1);
 
     }
 

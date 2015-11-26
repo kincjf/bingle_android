@@ -73,6 +73,7 @@ public class CommandFactory {
                 break;
             case SBGCProtocol.CMD_CONTROL:
                 command = new RequestMoveGimbal();
+                break;
             default:
                 command = new NullCommand();
                 break;

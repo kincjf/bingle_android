@@ -52,7 +52,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -1060,38 +1059,54 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		}
 
-		this.takePicture();
+		for (int i=-45; i<90; i+=90){
+			for (int k = 0;k<360;k+=30){
+				blueCtrl.turnClockWise(k, i);
+				try {
+					Thread.sleep(1000);
+
+					this.takePicture();
+
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			}
+
+		}
+		clickedUpload(view);
 	}
+
 	//카메라 업로드 시작
 	public void clickedUpload(View view) {
 
-		blueCtrl.send();
-//		if (MyDebug.LOG)
-//			Log.d(TAG, "camStart");
-//
-//		String zipPath=null;
-//		if(applicationInterface.isZip()){
-//			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
-//
-//			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
-//		}else {
-//			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
-//			zipPath = applicationInterface.compressFolder();
-//		}
-//
-//		if(zipPath!=null){
-//			Http transfer = new Http();
-//			JSONObject params = new JSONObject();
-//			try {
-//				params.put(COMMAND,CMD_UPLOAD);
-//				params.put(FILE_PATH,zipPath);
-//
-//			} catch (JSONException e) {
-//				e.printStackTrace();
-//			}
-//
-//			transfer.execute(params);
-//		}
+		if (MyDebug.LOG)
+			Log.d(TAG, "camStart");
+
+		String zipPath=null;
+		if(applicationInterface.isZip()){
+			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
+
+			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
+		}else {
+			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
+			zipPath = applicationInterface.compressFolder();
+		}
+
+		if(zipPath!=null){
+			Http transfer = new Http();
+			JSONObject params = new JSONObject();
+			try {
+				params.put(COMMAND,CMD_UPLOAD);
+				params.put(FILE_PATH,zipPath);
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			transfer.execute(params);
+		}
 
 	}
 
