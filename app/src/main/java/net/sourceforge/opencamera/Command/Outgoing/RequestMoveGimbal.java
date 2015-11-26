@@ -4,7 +4,7 @@ import android.util.Log;
 
 import net.sourceforge.opencamera.Command.CommandAction;
 import net.sourceforge.opencamera.Command.ICommand;
-import net.sourceforge.opencamera.Data.Serial.Outgoing.ControlCommandStructure;
+import net.sourceforge.opencamera.Data.Serial.Outgoing.ControlStructure;
 import net.sourceforge.opencamera.Data.Serial.ProtocolUtil;
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 
@@ -141,9 +141,10 @@ public class RequestMoveGimbal implements ICommand {
 
     protected void sendTurnCommand(int roll, int pitch, int yaw, int rollSpeed,
                                    int pitchSpeed, int yawSpeed, int mode) {
-        ControlCommandStructure cCmd = new ControlCommandStructure();
+        ControlStructure cCmd = new ControlStructure();
 
         cCmd.setMode(mode);
+
         cCmd.setAnglePitch(pitch);
         cCmd.setAngleRoll(roll);
         cCmd.setAngleYaw(yaw);
@@ -152,6 +153,6 @@ public class RequestMoveGimbal implements ICommand {
         cCmd.setSpeedRoll(rollSpeed);
         cCmd.setSpeedYaw(yawSpeed);
 
-        ProtocolUtil.sendCommand(SBGCProtocol.CMD_CONTROL, cCmd.getControlStructure());
+        ProtocolUtil.sendCommand(SBGCProtocol.CMD_CONTROL, cCmd.getByte());
     }
 }

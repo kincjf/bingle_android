@@ -14,9 +14,6 @@ import java.nio.ByteOrder;
  */
 public class SBGCProtocol extends ProtocolUtil {
     private static final String TAG = "SBGC_Protocol";
-    static String boardFirmware = "unknown";
-    static int boardVersion = 0;
-    public static int defaultTurnSpeed = 30;
 
     public static CommandAction action = new CommandAction();
 
@@ -92,6 +89,8 @@ public class SBGCProtocol extends ProtocolUtil {
     public static boolean BOARD_VERSION_3 = false;
 
     protected static int currentMode = 0;
+    static String boardFirmware = "unknown";
+    public static int defaultTurnSpeed = 30;
 
     /**
      * Requests the board information (firmware version)
@@ -139,10 +138,9 @@ public class SBGCProtocol extends ProtocolUtil {
      * @param yaw
      *            [0 to 360]
      */
-    public void requestMoveGimbalTo(int roll, int pitch, int yaw) {
-        this.requestMoveGimbalTo(roll, pitch, yaw,
-                this.defaultTurnSpeed, this.defaultTurnSpeed, this.defaultTurnSpeed,
-                this.getCurrentMode());
+    public static void requestMoveGimbalTo(int roll, int pitch, int yaw) {
+        requestMoveGimbalTo(roll, pitch, yaw,
+                defaultTurnSpeed, defaultTurnSpeed, defaultTurnSpeed, currentMode);
     }
 
 

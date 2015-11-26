@@ -12,6 +12,7 @@ import net.sourceforge.opencamera.Command.Outgoing.RequestBoardParams;
 import net.sourceforge.opencamera.Command.Outgoing.RequestChangeProfile;
 import net.sourceforge.opencamera.Command.Outgoing.RequestMotorOff;
 import net.sourceforge.opencamera.Command.Outgoing.RequestMotorOn;
+import net.sourceforge.opencamera.Command.Outgoing.RequestMoveGimbal;
 import net.sourceforge.opencamera.Command.Outgoing.RequestRealtimeData;
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 
@@ -51,21 +52,30 @@ public class CommandFactory {
     public ICommand createOutgoingCommand(byte key) {
         ICommand command = null;
 
-        // switch문으로 바꾸자
-        if (key == SBGCProtocol.CMD_BOARD_INFO ) {
-            command = new RequestBoardInfo();
-        } else if (key == SBGCProtocol.CMD_READ_PARAMS) {
-            command = new RequestBoardParams();
-        } else if (key == SBGCProtocol.CMD_EXECUTE_MENU) {
-            command = new RequestChangeProfile();
-        } else if (key == SBGCProtocol.CMD_REALTIME_DATA_3) {
-            command = new RequestRealtimeData();
-        } else if (key == SBGCProtocol.CMD_MOTORS_ON) {
-            command = new RequestMotorOn();
-        } else if (key == SBGCProtocol.CMD_MOTORS_OFF) {
-            command = new RequestMotorOff();
-        } else {
-            command = new NullCommand();
+        switch (key) {
+            case SBGCProtocol.CMD_BOARD_INFO:
+                command = new RequestBoardInfo();
+                break;
+            case SBGCProtocol.CMD_READ_PARAMS:
+                command = new RequestBoardParams();
+                break;
+            case SBGCProtocol.CMD_EXECUTE_MENU:
+                command = new RequestChangeProfile();
+                break;
+            case SBGCProtocol.CMD_REALTIME_DATA_3:
+                command = new RequestRealtimeData();
+                break;
+            case SBGCProtocol.CMD_MOTORS_ON:
+                command = new RequestMotorOn();
+                break;
+            case SBGCProtocol.CMD_MOTORS_OFF:
+                command = new RequestMotorOff();
+                break;
+            case SBGCProtocol.CMD_CONTROL:
+                command = new RequestMoveGimbal();
+            default:
+                command = new NullCommand();
+                break;
         }
 
         return command;
