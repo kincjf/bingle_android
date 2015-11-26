@@ -15,6 +15,7 @@ import com.google.android.gms.panorama.Panorama;
 import com.google.android.gms.panorama.PanoramaApi.PanoramaResult;
 
 /**
+ * Activiry에서 일반 Class Type로 바꿔야 됨.
  * Created by WG on 2015-10-28.
  */
 public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, OnConnectionFailedListener {
@@ -22,6 +23,7 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     public String filepath = null;
 
     private GoogleApiClient mClient;
+    int requestStatus = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,9 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
         Log.i(TAG, "Client connect");
     }
 
+
+
+
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "filepath : " + filepath);
@@ -54,7 +59,10 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
                             Intent viewerIntent = result.getViewerIntent();
                             Log.i(TAG, "found viewerIntent: " + viewerIntent);
                             if (viewerIntent != null) {
-                                startActivity(viewerIntent);
+                                startActivityForResult(viewerIntent, requestStatus);
+                            }
+                            else
+                            {
 
                             }
                         } else {
@@ -90,5 +98,10 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        Log.i(TAG, "resultCode : " + resultCode);
+    }
 }

@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class GalleryViewPagerActivity extends Activity{
 
-    private static final String TAG = "GalleryViewPagerActivity";
+    private static final String TAG = "GalleryViewPager";
     private static final String ISLOCKED_ARG = "isLocked";
     private ViewPager viewPager;
     private GalleryViewPagerAdapter galleryViewPagerAdapter;
