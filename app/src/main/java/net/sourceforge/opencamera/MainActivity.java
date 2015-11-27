@@ -63,6 +63,7 @@ import android.widget.ZoomControls;
 import net.sourceforge.opencamera.BluetoothController.BluetoothController;
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
+import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 import net.sourceforge.opencamera.Preview.JSONCommandInterface;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
@@ -105,6 +106,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	//bt_remote
 	private BluetoothController blueCtrl = null;
 	private boolean bDoubleCheck = false;
+	private SBGCProtocol sbgcProtocol = new SBGCProtocol();
 
     private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
@@ -517,18 +519,54 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		//블루투스 리모콘(GameMode) 관련 KeyEvent 처리
 		case KeyEvent.KEYCODE_DPAD_UP:
 			{
+				//리모콘 세로 방향의 RIGHT버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()){
+					sbgcProtocol.requestMoveGimbalTo(0 , 0, 90);
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, 0, 50);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_DPAD_DOWN:
 			{
+				//리모콘 세로 방향의 LEFT버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, 0, -90);
+				}else{
+					sbgcProtocol.requestMoveGimbalTo(0, 0, -50);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_DPAD_LEFT:
 			{
+				//리모콘 세로 방향의 UP버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, 10, 0);
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, 20, 0);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_DPAD_RIGHT:
 			{
+				//리모콘 세로 방향의 DOWN버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, -20, 0);
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, -10, 0);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_BUTTON_X:
@@ -538,7 +576,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 						takePicture();
 					}
 					bDoubleCheck = true;
-					mHandler.sendEmptyMessageDelayed(0,1500);
+					mHandler.sendEmptyMessageDelayed(0, 1500);
 					return true;
 				}else {
 					finish();
@@ -560,6 +598,50 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
         return super.onKeyDown(keyCode, event); 
     }
+
+
+	//블루투스 리모콘으로 장비 컨트롤을 위한 메소드
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (MyDebug.LOG)
+			Log.d(TAG, "onKeyDown: " + keyCode);
+		switch (keyCode) {
+			case KeyEvent.KEYCODE_DPAD_UP:
+			{
+				//리모콘 세로 방향의 RIGHT버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_DOWN:
+			{
+				//리모콘 세로 방향의 LEFT버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_LEFT:
+			{
+				//리모콘 세로 방향의 UP버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
+			{
+				//리모콘 세로 방향의 DOWN버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+
+
 	public void onStart() {
 		super.onStart();
 		blueCtrl.enableBluetooth();
