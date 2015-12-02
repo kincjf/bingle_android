@@ -90,8 +90,8 @@ public class SBGCProtocol extends ProtocolUtil {
 
     protected static int currentMode = 0;
     static String boardFirmware = "unknown";
+    static int boardVersion = 0;
     public static int defaultTurnSpeed = 30;
-
     /**
      * Requests the board information (firmware version)
      */
