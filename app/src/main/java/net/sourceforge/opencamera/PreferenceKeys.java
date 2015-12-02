@@ -305,7 +305,10 @@ public class PreferenceKeys {
     	return "preference_immersive_mode";
     }
 
-    //블루투스 설정 관련 preference 키값
+    /**
+     * Created by WG
+     * 블루투스 설정 관련 preference 키값
+     */
     public static String getAutoConnectPreferenceKey() {
         return "preference_auto_connect";
     }

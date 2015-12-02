@@ -11,6 +11,9 @@ import android.view.LayoutInflater;
 import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
+/**
+ * Created by WG on 2015-10-22.
+ */
 
 final class GridViewAdapter extends ArrayAdapter {
     private static final String TAG = "GalleryAdapter";

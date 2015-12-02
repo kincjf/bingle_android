@@ -100,10 +100,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     private Map<Integer, Bitmap> preloaded_bitmap_resources = new Hashtable<Integer, Bitmap>();
     private PopupView popup_view = null;
 
-	//gallery
-	private ImageView imageView = null;
-
-	//bt_remote
+	//블루투스 및 블루투스 리모콘 관련
 	private BluetoothController blueCtrl = null;
 	private boolean bDoubleCheck = false;
 	private SBGCProtocol sbgcProtocol = new SBGCProtocol();
@@ -317,7 +314,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		@Override
 		public void handleMessage(Message msg) {
-			if(msg.what == 0){ //블루투스 리모콘 두번 클릭 체크시
+			if(msg.what == 0){ //블루투스 리모콘 두번 클릭 체크
 				bDoubleCheck = false;
 			}
 			super.handleMessage(msg);
@@ -515,8 +512,11 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				this.zoomOut();
 	            return true;
 			}
-
-		//블루투스 리모콘(GameMode) 관련 KeyEvent 처리
+		/**
+		 * Created by WG .
+		 * 블루투스 리모콘(GameMode) 관련 KeyEvent 처리
+		 * ----------- START ------------
+		 */
 		case KeyEvent.KEYCODE_DPAD_UP:
 			{
 				//리모콘 세로 방향의 RIGHT버튼
@@ -585,6 +585,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			}
 		case KeyEvent.KEYCODE_BUTTON_Y:
 			{
+				//비디오와 사진촬영 switch 버튼 강제 클릭
 				ImageButton iBtn = (ImageButton)findViewById(R.id.switch_video);
 				iBtn.performClick();
 				return true;
@@ -598,7 +599,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
         return super.onKeyDown(keyCode, event); 
     }
-
 
 	//블루투스 리모콘으로 장비 컨트롤을 위한 메소드
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -640,10 +640,11 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 		return super.onKeyUp(keyCode, event);
 	}
-
+	//------ END --------
 
 	public void onStart() {
 		super.onStart();
+		//어플 실행시 블루투스 활성화 확인
 		blueCtrl.enableBluetooth();
 	}
 	
@@ -1193,8 +1194,11 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	}
 
 
-
-	//블루투스 리모콘 연결
+	/**
+	 * Created by WG
+	 * 블루투스 리모콘 연결
+	 * --------- START -----------
+	 */
 	public void clickedBTRemote(View view) {
 
 		if (MyDebug.LOG)
@@ -1216,7 +1220,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				Log.d(TAG, "Bluetooth is not available");
 
 		}
-
+		//------------- END --------------
 
 
 	}
@@ -1883,35 +1887,36 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "time to update gallery icon: " + (System.currentTimeMillis() - time_s));
     }
 
+	/**
+	 * Created by WG
+	 * Gallery 버튼 클릭시
+	 * --------- START -----------
+	 */
 	public void clickedGallery(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedGallery");
 
-		if( !is_test ) {
+		try {
+			// 특정 폴더의 이미지 파일들의 경로를 저장
+			ArrayList<String> image_list = applicationInterface.getStorageUtils().getAllImage();
 
-			try {
-				// REVIEW_ACTION means we can view video files without autoplaying
-				ArrayList<String> image_list = applicationInterface.getStorageUtils().getAllImage();
+			Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
+			intent.putExtra("imageList", image_list);
+			startActivity(intent);
 
-
-				Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
-				intent.putExtra("imageList", image_list);
-				startActivity(intent);
-
-
-				/*
-				Intent intent = new Intent(MainActivity.this, GalleryViewPagerActivity.class);
-				intent.putExtra("imageList", image_list);
-				startActivity(intent);
-				*/
+			/*
+			Intent intent = new Intent(MainActivity.this, GalleryViewPagerActivity.class);
+			intent.putExtra("imageList", image_list);
+			startActivity(intent);
+			*/
 			}
-			catch(ActivityNotFoundException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "GalleryActivity intent didn't work");
+		catch(ActivityNotFoundException e) {
+			if( MyDebug.LOG )
+				Log.d(TAG, "GalleryActivity intent didn't work");
 
-			}
 		}
 	}
+	//---------- END -------------
 
     private void updateFolderHistory() {
 		String folder_name = applicationInterface.getStorageUtils().getSaveLocation();
@@ -2011,6 +2016,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     			preview.showToast(null, R.string.saf_cancelled);
     		}
         }
+
 		// 블루투스 관련
 		else if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
 			blueCtrl.onActivityResult(requestCode,resultCode,resultData);
