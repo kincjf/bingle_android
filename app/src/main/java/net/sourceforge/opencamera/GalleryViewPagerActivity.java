@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 /**
  * Created by WG on 2015-11-06.
+ * 아직 완성 안됨
  */
 public class GalleryViewPagerActivity extends Activity{
 

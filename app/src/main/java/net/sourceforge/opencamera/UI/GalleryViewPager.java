@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 /**
  * Created by WG on 2015-11-09.
  */
+//아직 완성 안됨
 public class GalleryViewPager extends ViewPager {
 
     private boolean isLocked;
