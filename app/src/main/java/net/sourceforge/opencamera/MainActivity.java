@@ -1471,7 +1471,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		closePopup();
 		preview.cancelTimer(); // best to cancel any timer, in case we take a photo while settings window is open, or when changing settings
 		preview.stopVideo(false); // important to stop video, as we'll be changing camera parameters when the settings window closes
-		
+
 		Bundle bundle = new Bundle();
 		bundle.putInt("cameraId", this.preview.getCameraId());
 		bundle.putString("camera_api", this.preview.getCameraAPI());
@@ -1882,71 +1882,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		if( MyDebug.LOG )
 			Log.d(TAG, "time to update gallery icon: " + (System.currentTimeMillis() - time_s));
     }
-
-	/* 기존 opencamera 소스파일
-    public void clickedGallery(View view) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clickedGallery");
-		//Intent intent = new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		Uri uri = applicationInterface.getStorageUtils().getLastMediaScanned();
-		if( uri == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "go to latest media");
-			StorageUtils.Media media = applicationInterface.getStorageUtils().getLatestMedia();
-			if( media != null ) {
-				uri = media.uri;
-			}
-		}
-
-		if( uri != null ) {
-			// check uri exists
-			if( MyDebug.LOG )
-				Log.d(TAG, "found most recent uri: " + uri);
-			try {
-				ContentResolver cr = getContentResolver();
-				ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-				if( pfd == null ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "uri no longer exists (1): " + uri);
-					uri = null;
-				}
-				pfd.close();
-			}
-			catch(IOException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "uri no longer exists (2): " + uri);
-				uri = null;
-			}
-		}
-		if( uri == null ) {
-			uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-		}
-		if( !is_test ) {
-			// don't do if testing, as unclear how to exit activity to finish test (for testGallery())
-			if( MyDebug.LOG )
-				Log.d(TAG, "launch uri:" + uri);
-			final String REVIEW_ACTION = "com.android.camera.action.REVIEW";
-			try {
-				// REVIEW_ACTION means we can view video files without autoplaying
-				Intent intent = new Intent(REVIEW_ACTION, uri);
-				this.startActivity(intent);
-			}
-			catch(ActivityNotFoundException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "REVIEW_ACTION intent didn't work, try ACTION_VIEW");
-				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-				// from http://stackoverflow.com/questions/11073832/no-activity-found-to-handle-intent - needed to fix crash if no gallery app installed
-				//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("blah")); // test
-				if( intent.resolveActivity(getPackageManager()) != null ) {
-					this.startActivity(intent);
-				}
-				else{
-					preview.showToast(null, R.string.no_gallery_app);
-				}
-			}
-		}
-    }
-	*/
 
 	public void clickedGallery(View view) {
 		if( MyDebug.LOG )

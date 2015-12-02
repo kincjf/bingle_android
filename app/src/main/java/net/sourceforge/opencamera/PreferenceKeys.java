@@ -304,4 +304,12 @@ public class PreferenceKeys {
     public static String getImmersiveModePreferenceKey() {
     	return "preference_immersive_mode";
     }
+
+    //블루투스 설정 관련 preference 키값
+    public static String getAutoConnectPreferenceKey() {
+        return "preference_auto_connect";
+    }
+    public static String getBluetoothDeviceListPreferenceKey() {
+        return "preference_bluetooth_device_list";
+    }
 }

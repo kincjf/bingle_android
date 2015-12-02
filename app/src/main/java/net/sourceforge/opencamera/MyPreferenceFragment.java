@@ -1,5 +1,6 @@
 package net.sourceforge.opencamera;
 
+import net.sourceforge.opencamera.BluetoothController.BluetoothController;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 
@@ -649,6 +650,21 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         	pg.removePreference(pref);
 		}
 	}*/
+
+	//블루투스 설정 관련
+	{
+		final Preference pref = findPreference("preference_bluetooth_device_list");
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				if( pref.getKey().equals("preference_bluetooth_device_list") ) {
+
+					return false;
+				}
+				return false;
+			}
+		});
+	}
 	
 	public void onResume() {
 		super.onResume();
