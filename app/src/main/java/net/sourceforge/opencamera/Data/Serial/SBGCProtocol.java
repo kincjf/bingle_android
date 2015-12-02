@@ -11,6 +11,8 @@ import java.nio.ByteOrder;
 
 /**
  * Created by KIMSEONHO on 2015-11-17.
+ * Simple BGC(Board) Serial Communication을 쉽게 할 수 있도록
+ * command별 interface를 구성함
  */
 public class SBGCProtocol extends ProtocolUtil {
     private static final String TAG = "SBGC_Protocol";

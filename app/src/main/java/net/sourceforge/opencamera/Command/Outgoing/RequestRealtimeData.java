@@ -6,7 +6,8 @@ import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 
 /**
  * Created by KIMSEONHO on 2015-11-16.
- * */
+ * CMD_REALTIME_DATA_3 == CMD_REALTIME_DATA - Request realtime data, response is CMD_REALTIME_DATA_3
+ */
 public class RequestRealtimeData implements ICommand {
 
     /*

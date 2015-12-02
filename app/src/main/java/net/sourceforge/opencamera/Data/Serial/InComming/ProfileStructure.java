@@ -1,6 +1,7 @@
 package net.sourceforge.opencamera.Data.Serial.InComming;
 
 /**
+ * Created by KIMSEONHO on 2015-11-17.
  * CMD_READ_PARAMS_3 - Receive parameters
  */
 public class ProfileStructure {

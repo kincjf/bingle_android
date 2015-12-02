@@ -4,7 +4,7 @@ import net.sourceforge.opencamera.Data.Serial.IStructure;
 
 /**
  * CMD_CONTROL - control gimbal movement
- * 
+ * Created by KIMSEONHO on 2015-11-17.
  */
 public class ControlStructure implements IStructure {
 

@@ -11,6 +11,7 @@ import static net.sourceforge.opencamera.Data.Serial.SBGCProtocol.getRealtimeDat
 
 /**
  * Created by KIMSEONHO on 2015-11-16.
+ * CMD_REALTIME_DATA_3 - Receive real-time data for
  */
 public class ParseRealtimeData implements ICommand {
     protected static final float ANGLE_TO_DEGREE = 0.02197266F;

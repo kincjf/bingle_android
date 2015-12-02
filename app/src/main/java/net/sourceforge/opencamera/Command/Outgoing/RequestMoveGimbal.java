@@ -13,6 +13,7 @@ import java.nio.ByteOrder;
 
 /**
  * Created by KIMSEONHO on 2015-11-16.
+ * CMD_CONTROL - Request control gimbal movement
  */
 public class RequestMoveGimbal implements ICommand {
     protected int oldYaw = 0;

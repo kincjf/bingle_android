@@ -11,7 +11,7 @@ import static net.sourceforge.opencamera.Data.Serial.ProtocolUtil.readWord;
 
 /**
  * Created by KIMSEONHO on 2015-11-16.
- * Receive parameters for single profile together with general parameters
+ * CMD_READ_PARAM - Receive parameters for single profile together with general parameters
  */
 public class ParseBoardParam implements ICommand {
 

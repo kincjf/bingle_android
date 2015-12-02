@@ -10,6 +10,8 @@ import static net.sourceforge.opencamera.Data.Serial.ProtocolUtil.sendCommand;
 
 /**
  * Created by KIMSEONHO on 2015-11-17.
+ * CMD_EXECUTE_MENU - Request execute menu command
+ * menu에 등록된 명령을 실행함. 정해진 것은 아니며 조합에 따라 다름.
  */
 public class RequestChangeProfile implements ICommand {
     @Override

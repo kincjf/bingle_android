@@ -2,6 +2,7 @@ package net.sourceforge.opencamera.Data.Serial.InComming;
 
 
 /**
+ * Created by KIMSEONHO on 2015-11-17.
  * CMD_REALTIME_DATA_3 - receive real-time data for
  */
 public class RealtimeDataStructure {
