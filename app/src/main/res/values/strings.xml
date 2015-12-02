@@ -222,6 +222,12 @@
     <string name="preference_video_flash">Flash while recording video</string>
     <string name="preference_video_flash_summary">If enabled, flash will switch on/off when recording video (can be used to tell camera is still recording at a distance)</string>
     
+    <string name="preference_bluetooth_settings">Bluetooth Settings</string>
+    <string name="preference_auto_connect">Bluetooth Auto Connect</string>
+    <string name="preference_auto_connect_summary">Bluetooth Auto Connect Setting</string>
+    <string name="preference_bluetooth_device_list">Bluetooth Device List</string>
+    <string name="preference_bluetooth_device_list_summary">Bluetooth Device List</string>
+
     <string name="preference_category_online">Misc</string>
     <string name="preference_online_help">Online help</string>
     <string name="preference_donate">Donate to support development</string>

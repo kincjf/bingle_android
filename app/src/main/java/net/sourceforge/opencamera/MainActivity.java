@@ -52,7 +52,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -64,6 +63,7 @@ import android.widget.ZoomControls;
 import net.sourceforge.opencamera.BluetoothController.BluetoothController;
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
+import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 import net.sourceforge.opencamera.Preview.JSONCommandInterface;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
@@ -105,6 +105,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 	//bt_remote
 	private BluetoothController blueCtrl = null;
+	private boolean bDoubleCheck = false;
+	private SBGCProtocol sbgcProtocol = new SBGCProtocol();
 
     private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
@@ -315,6 +317,9 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		@Override
 		public void handleMessage(Message msg) {
+			if(msg.what == 0){ //블루투스 리모콘 두번 클릭 체크시
+				bDoubleCheck = false;
+			}
 			super.handleMessage(msg);
 		}
 
@@ -403,7 +408,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		editor.apply();
 	}
 
-	public boolean onKeyDown(int keyCode, KeyEvent event) { 
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onKeyDown: " + keyCode);
 		switch( keyCode ) {
@@ -514,26 +519,69 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		//블루투스 리모콘(GameMode) 관련 KeyEvent 처리
 		case KeyEvent.KEYCODE_DPAD_UP:
 			{
+				//리모콘 세로 방향의 RIGHT버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()){
+					sbgcProtocol.requestMoveGimbalTo(0 , 0, 90);
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, 0, 50);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_DPAD_DOWN:
 			{
+				//리모콘 세로 방향의 LEFT버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, 0, -90);
+				}else{
+					sbgcProtocol.requestMoveGimbalTo(0, 0, -50);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_DPAD_LEFT:
 			{
+				//리모콘 세로 방향의 UP버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, 10, 0);
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, 20, 0);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_DPAD_RIGHT:
 			{
+				//리모콘 세로 방향의 DOWN버튼
+				sbgcProtocol.setCurrentMode(4); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, -20, 0);
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, -10, 0);
+				}
+
 				return true;
 			}
 		case KeyEvent.KEYCODE_BUTTON_X:
 			{
-				if( event.getRepeatCount() == 0 ) {
-					takePicture();
+				if(!bDoubleCheck){
+					if( event.getRepeatCount() == 0 ) {
+						takePicture();
+					}
+					bDoubleCheck = true;
+					mHandler.sendEmptyMessageDelayed(0, 1500);
 					return true;
+				}else {
+					finish();
 				}
+
 			}
 		case KeyEvent.KEYCODE_BUTTON_Y:
 			{
@@ -550,6 +598,50 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
         return super.onKeyDown(keyCode, event); 
     }
+
+
+	//블루투스 리모콘으로 장비 컨트롤을 위한 메소드
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (MyDebug.LOG)
+			Log.d(TAG, "onKeyDown: " + keyCode);
+		switch (keyCode) {
+			case KeyEvent.KEYCODE_DPAD_UP:
+			{
+				//리모콘 세로 방향의 RIGHT버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_DOWN:
+			{
+				//리모콘 세로 방향의 LEFT버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_LEFT:
+			{
+				//리모콘 세로 방향의 UP버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
+			{
+				//리모콘 세로 방향의 DOWN버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+
+
 	public void onStart() {
 		super.onStart();
 		blueCtrl.enableBluetooth();
@@ -1049,38 +1141,54 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		}
 
-		this.takePicture();
+		for (int i=-45; i<90; i+=90){
+			for (int k = 0;k<360;k+=30){
+				blueCtrl.turnClockWise(k, i);
+				try {
+					Thread.sleep(1000);
+
+					this.takePicture();
+
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			}
+
+		}
+		clickedUpload(view);
 	}
+
 	//카메라 업로드 시작
 	public void clickedUpload(View view) {
 
-		blueCtrl.send();
-//		if (MyDebug.LOG)
-//			Log.d(TAG, "camStart");
-//
-//		String zipPath=null;
-//		if(applicationInterface.isZip()){
-//			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
-//
-//			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
-//		}else {
-//			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
-//			zipPath = applicationInterface.compressFolder();
-//		}
-//
-//		if(zipPath!=null){
-//			Http transfer = new Http();
-//			JSONObject params = new JSONObject();
-//			try {
-//				params.put(COMMAND,CMD_UPLOAD);
-//				params.put(FILE_PATH,zipPath);
-//
-//			} catch (JSONException e) {
-//				e.printStackTrace();
-//			}
-//
-//			transfer.execute(params);
-//		}
+		if (MyDebug.LOG)
+			Log.d(TAG, "camStart");
+
+		String zipPath=null;
+		if(applicationInterface.isZip()){
+			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
+
+			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
+		}else {
+			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
+			zipPath = applicationInterface.compressFolder();
+		}
+
+		if(zipPath!=null){
+			Http transfer = new Http();
+			JSONObject params = new JSONObject();
+			try {
+				params.put(COMMAND,CMD_UPLOAD);
+				params.put(FILE_PATH,zipPath);
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+			transfer.execute(params);
+		}
 
 	}
 
@@ -1363,7 +1471,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		closePopup();
 		preview.cancelTimer(); // best to cancel any timer, in case we take a photo while settings window is open, or when changing settings
 		preview.stopVideo(false); // important to stop video, as we'll be changing camera parameters when the settings window closes
-		
+
 		Bundle bundle = new Bundle();
 		bundle.putInt("cameraId", this.preview.getCameraId());
 		bundle.putString("camera_api", this.preview.getCameraAPI());
@@ -1774,71 +1882,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		if( MyDebug.LOG )
 			Log.d(TAG, "time to update gallery icon: " + (System.currentTimeMillis() - time_s));
     }
-
-	/* 기존 opencamera 소스파일
-    public void clickedGallery(View view) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clickedGallery");
-		//Intent intent = new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		Uri uri = applicationInterface.getStorageUtils().getLastMediaScanned();
-		if( uri == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "go to latest media");
-			StorageUtils.Media media = applicationInterface.getStorageUtils().getLatestMedia();
-			if( media != null ) {
-				uri = media.uri;
-			}
-		}
-
-		if( uri != null ) {
-			// check uri exists
-			if( MyDebug.LOG )
-				Log.d(TAG, "found most recent uri: " + uri);
-			try {
-				ContentResolver cr = getContentResolver();
-				ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-				if( pfd == null ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "uri no longer exists (1): " + uri);
-					uri = null;
-				}
-				pfd.close();
-			}
-			catch(IOException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "uri no longer exists (2): " + uri);
-				uri = null;
-			}
-		}
-		if( uri == null ) {
-			uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-		}
-		if( !is_test ) {
-			// don't do if testing, as unclear how to exit activity to finish test (for testGallery())
-			if( MyDebug.LOG )
-				Log.d(TAG, "launch uri:" + uri);
-			final String REVIEW_ACTION = "com.android.camera.action.REVIEW";
-			try {
-				// REVIEW_ACTION means we can view video files without autoplaying
-				Intent intent = new Intent(REVIEW_ACTION, uri);
-				this.startActivity(intent);
-			}
-			catch(ActivityNotFoundException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "REVIEW_ACTION intent didn't work, try ACTION_VIEW");
-				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-				// from http://stackoverflow.com/questions/11073832/no-activity-found-to-handle-intent - needed to fix crash if no gallery app installed
-				//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("blah")); // test
-				if( intent.resolveActivity(getPackageManager()) != null ) {
-					this.startActivity(intent);
-				}
-				else{
-					preview.showToast(null, R.string.no_gallery_app);
-				}
-			}
-		}
-    }
-	*/
 
 	public void clickedGallery(View view) {
 		if( MyDebug.LOG )

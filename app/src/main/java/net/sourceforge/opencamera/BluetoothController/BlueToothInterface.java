@@ -3,7 +3,7 @@ package net.sourceforge.opencamera.BluetoothController;
 public interface BlueToothInterface {
 
 	//angle control..
-	void turnClockWise();
+	void turnClockWise(int yaw,int pitch);
 	void turnCounterClockWise();
 	void turnUp();
 	void turnDown();

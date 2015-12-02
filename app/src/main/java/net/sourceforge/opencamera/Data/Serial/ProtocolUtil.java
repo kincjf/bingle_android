@@ -3,7 +3,6 @@ package net.sourceforge.opencamera.Data.Serial;
 import android.util.Log;
 
 import net.sourceforge.opencamera.BluetoothController.BluetoothController;
-import net.sourceforge.opencamera.Data.Serial.Outgoing.ControlCommandStructure;
 import net.sourceforge.opencamera.Data.Serial.InComming.ProfileStructure;
 import net.sourceforge.opencamera.Data.Serial.InComming.RealtimeDataStructure;
 

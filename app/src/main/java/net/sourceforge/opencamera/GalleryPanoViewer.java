@@ -23,7 +23,7 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     public String filepath = null;
 
     private GoogleApiClient mClient;
-    int requestStatus = 1;
+    int requestStatus = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +46,6 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     }
 
 
-
-
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "filepath : " + filepath);
@@ -60,9 +58,7 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
                             Log.i(TAG, "found viewerIntent: " + viewerIntent);
                             if (viewerIntent != null) {
                                 startActivityForResult(viewerIntent, requestStatus);
-                            }
-                            else
-                            {
+                            } else {
 
                             }
                         } else {
@@ -81,7 +77,6 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     @Override
     public void onConnectionFailed(ConnectionResult status) {
         Log.e(TAG, "connection failed: " + status);
-        // TODO fill in
     }
 
     @Override
@@ -101,7 +96,14 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        switch (resultCode)
+        {
+            case 0 :       // 정상 종료
+                mClient.disconnect();
+                break;
+            default:
+                Log.d(TAG, "Error when Panorama Viewer exited");
+        }
         Log.i(TAG, "resultCode : " + resultCode);
     }
 }

@@ -105,7 +105,8 @@ public class SBGCProtocol extends ProtocolUtil {
 		}
 
         // we are starting in RC Mode
-		setCurrentMode(MODE_RC);
+//		setCurrentMode(MODE_RC);
+		setCurrentMode(MODE_ANGLE);
 
         return (boardFirmware != "unknown");
     }
