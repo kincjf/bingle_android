@@ -176,7 +176,6 @@ public class BluetoothController implements BlueToothInterface {
             if(!bt.isServiceAvailable()) {
                 bt.setupService();
                 bt.startService(BluetoothState.DEVICE_OTHER);
-                bt.autoConnect("CAMTOOL_CINE");
 //                setup();
             }
         }

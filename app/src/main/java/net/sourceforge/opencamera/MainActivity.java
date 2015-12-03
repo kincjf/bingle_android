@@ -1220,10 +1220,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				Log.d(TAG, "Bluetooth is not available");
 
 		}
-		//------------- END --------------
-
-
 	}
+	//------------- END --------------
 
     public void clickedSwitchCamera(View view) {
 		if( MyDebug.LOG )
@@ -1262,6 +1260,27 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 
     }
+
+	//블루투스 설정에서 블루투스 장비 검색 할때 사용
+	public void bluetoothSearchDevice(){
+		if (MyDebug.LOG)
+			Log.d(TAG, "bluetoothSearchDevice");
+
+
+		if(blueCtrl == null) {
+			Log.d(TAG, "BluetoothControoler :" + blueCtrl);
+			blueCtrl = new BluetoothController(this, mHandler);
+		}
+
+		if(blueCtrl.getIsBluetoothEanble()){
+
+			blueCtrl.searchDevice();
+		}else {
+			if (MyDebug.LOG)
+				Log.d(TAG, "Bluetooth is not available");
+
+		}
+	}
 
     public void setPopupIcon() {
 		if( MyDebug.LOG )

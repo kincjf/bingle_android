@@ -27,7 +27,7 @@ public class GalleryActivity extends Activity implements GoogleApiClient.Connect
     private static final String TAG = "GalleryActivity";
     private GridView gridView;
     private ArrayList<String> urls;
-    private GridViewAdapter gridViewAdapter;
+    private GalleryAdapter galleryAdapter;
 
     private GoogleApiClient mClient;
 
@@ -45,11 +45,11 @@ public class GalleryActivity extends Activity implements GoogleApiClient.Connect
         Intent intent = getIntent();
         urls = intent.getExtras().getStringArrayList("imageList");
         gridView = (GridView)findViewById(R.id.iv_grid);
-        gridViewAdapter = new GridViewAdapter(GalleryActivity.this, urls);
+        galleryAdapter = new GalleryAdapter(GalleryActivity.this, urls);
         gridView.setSelector(new StateListDrawable()); // image 선택시 생기는 여백 제거
 
         try{
-            gridView.setAdapter(gridViewAdapter);
+            gridView.setAdapter(galleryAdapter);
         }catch (OutOfMemoryError E) {
             E.printStackTrace();
         }
@@ -63,7 +63,7 @@ public class GalleryActivity extends Activity implements GoogleApiClient.Connect
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                clickImageUrl = gridViewAdapter.getItem(position).toString();
+                clickImageUrl = galleryAdapter.getItem(position).toString();
 
 
                 mClient.connect();

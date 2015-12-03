@@ -361,6 +361,8 @@ public class BluetoothService {
 //                    Thread.sleep(20);
                     byte[] readData = read();
                     if(readData.length>2){
+
+                        //패킷이 0 으로 들어오는 값들을 필터로 막기 위해서.
                         if(readData[0] == PRE_HEADER ||readData[1] == COMMAND_ID){
                             Log.i(TAG,"not matched");
                             continue;
