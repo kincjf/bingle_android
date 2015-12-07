@@ -1735,7 +1735,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     			closePopup();
     			return;
     		} else if (panorama_start) {		// stop action
-				backPressCloseHandler.onBackPressed(panorama_start);
+				panorama_start = backPressCloseHandler.onBackPressed(panorama_start);
 				return;
 			} else {		// exit
 				backPressCloseHandler.onBackPressed();
