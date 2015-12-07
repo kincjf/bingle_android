@@ -2864,8 +2864,8 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 	public boolean chooseFolder() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "useFolder");
-		//String folderName = ROOT_DIR+System.currentTimeMillis ( );
-		String folderName = ROOT_DIR+"2015092304200382";
+		String folderName = ROOT_DIR+System.currentTimeMillis ( );
+		//String folderName = ROOT_DIR+"2015092304200382";
 		current_folder=new File(folderName);
 		if( !current_folder.exists() )
 			current_folder.mkdir();
@@ -2929,7 +2929,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		//folderDelete(folderPath);
+		folderDelete(folderPath);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 

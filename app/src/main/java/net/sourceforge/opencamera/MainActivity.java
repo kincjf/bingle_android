@@ -1150,16 +1150,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	 */
     public void takeSphericalPhoto() {
 		if( MyDebug.LOG )
-<<<<<<< HEAD
-			Log.d(TAG, "clickedTakePhoto");
-
-
-		applicationInterface.chooseFolder();
-/*
-=======
 			Log.d(TAG, "takeSphericalPhoto");
 
->>>>>>> 2baa81e543f0589c033a2ffa7bc98eecd0da0d14
 		if(!applicationInterface.isSaveFolder()){
 			applicationInterface.chooseFolder();
 		}
@@ -1169,7 +1161,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			return;
 		}
 
-		final Thread backThread = new Thread(new Runnable() {
+	final Thread backThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				synchronized (this) {
@@ -1208,14 +1200,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			}
 		});
 
-<<<<<<< HEAD
-		}
-*/
-		clickedUpload(view);
-=======
+
 		backThread.setDaemon(true);
 		backThread.start();
->>>>>>> 2baa81e543f0589c033a2ffa7bc98eecd0da0d14
+
 	}
 
 	/**
@@ -1251,36 +1239,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			transfer.execute(params);
 		}
 	}
-
-
-	/**
-	 * Created by WG
-	 * 블루투스 리모콘 연결
-	 * --------- START -----------
-	 */
-	public void clickedBTRemote(View view) {
-
-		if (MyDebug.LOG)
-			Log.d(TAG, "BTRemote Strat");
-
-
-		if(blueCtrl == null) {
-			Log.d(TAG, "BTRemot - BluetoothControoler :" + blueCtrl);
-			blueCtrl = new BluetoothController(this, mHandler);
-		}
-
-		if(blueCtrl.getIsBluetoothEanble()){
-			if (MyDebug.LOG)
-				Log.d(TAG, "BTRemote Scan Divices");
-
-				blueCtrl.searchDevice();
-		}else {
-			if (MyDebug.LOG)
-				Log.d(TAG, "Bluetooth is not available");
-
-		}
-	}
-	//------------- END --------------
 
 	public void clickedTakePhoto(View view) {
 		if( MyDebug.LOG )

@@ -46,7 +46,6 @@ public class GalleryAdapter extends ArrayAdapter {
             Glide.with(context)
                     .load("file://" + urls.get(position))
                     .placeholder(R.drawable.gallery)
-                    .override(200, 200)
                     .centerCrop()
                     .into((ImageView) convertView);
         }else{

@@ -171,25 +171,6 @@
         android:onClick="clickedShare"
 
         />
-    <ImageButton
-        android:id="@+id/tmp"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:padding="10dp"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/share"
-        android:src="@drawable/focus_mode_manual"
-        android:onClick="clickedUpload"
-        />
-
-    <ImageButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/bt_remote"
-        android:onClick="clickedBTRemote"
-        android:padding="10dp"
-        android:scaleType="fitCenter"
-        android:layout_marginTop="100dp" />
 
     <SeekBar
         android:id="@+id/exposure_seekbar"
