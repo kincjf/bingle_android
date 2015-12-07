@@ -60,7 +60,13 @@
     <string name="color_effect">Color effect</string>
     <string name="scene_mode">Scene mode</string>
     <string name="white_balance">White balance</string>
-    
+
+    <!-- customize start -->
+    <string name="taking_panorama_photo">Panorama Photo is being taken</string>
+    <string name="reupload">Upload it again for convert panorama</string>
+    <string name="compressing">The image is compressing for upload</string>
+    <!-- customize end -->
+
     <string name="angle">Angle</string>
     <string name="direction">Direction</string>
     <string name="failed_to_open_camera_1">FAILED TO OPEN CAMERA.</string>
@@ -273,4 +279,8 @@
     <string name="server_err_upload">Upload Error</string>
     <string name="server_err_internal">Internal Error</string>
 
+    <!-- custom start -->
+    <string name="stop_action">Cancel the doing operation when pressing the back button once more</string>
+    <string name="exit_app">Pressing the back button once more, it will exit.</string>
+    <!-- custom end -->
 </resources>
