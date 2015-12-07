@@ -3,11 +3,15 @@ package net.sourceforge.opencamera.BluetoothController;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
+import net.sourceforge.opencamera.MyDebug;
+import net.sourceforge.opencamera.PreferenceKeys;
 
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothSPP.BluetoothConnectionListener;
@@ -24,6 +28,7 @@ public class BluetoothController implements BlueToothInterface {
     private Activity mActivity;
     private Handler mHandler;
     private BluetoothAdapter btAdapter;
+//    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
 
     static BluetoothSPP bt;
 
@@ -91,6 +96,22 @@ public class BluetoothController implements BlueToothInterface {
             if(resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "Bluetooth Device Connect");
                 bt.connect(data);
+/*
+                deviceName = main_activity.getBluetoothConnectDeviceName();
+
+                if (deviceName != null) {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "bluetooth connect device name : " + deviceName);
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(PreferenceKeys.getBluetoothDeviceListPreferenceKey(), deviceName);
+                    editor.apply();
+
+                }else {
+                    if( MyDebug.LOG )
+                        Log.d(TAG, "no bluetooth connect device name");
+                }
+ */
             }
         } else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
             if(resultCode == Activity.RESULT_OK) {
@@ -108,6 +129,8 @@ public class BluetoothController implements BlueToothInterface {
     public void searchDevice(){
         Log.i(TAG, "Bluetooth Search Device");
 
+
+
         if(bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
             bt.disconnect();
         } else {
@@ -115,10 +138,9 @@ public class BluetoothController implements BlueToothInterface {
 
             Intent intent = new Intent(mActivity, DeviceList.class);
             mActivity.startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-//            Toast.makeText(mActivity
-//                    , "what is this"
-//                    , Toast.LENGTH_SHORT).show();
+
         }
+
     }
 
     public static BluetoothSPP getBluetooth() {
@@ -185,6 +207,11 @@ public class BluetoothController implements BlueToothInterface {
     public boolean getIsBluetoothEanble(){
         return bt.isBluetoothEnabled();
 
+    }
+
+    //연결된 블루투스 장비 이름 가져오기
+    public String getBluetoothConnectDeviceName() {
+        return bt.getConnectedDeviceName();
     }
 
     //블루투스 서비스 중지

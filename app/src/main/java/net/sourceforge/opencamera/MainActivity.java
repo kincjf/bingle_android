@@ -1135,8 +1135,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "clickedTakePhoto");
 
 
-
-
+		applicationInterface.chooseFolder();
+/*
 		if(!applicationInterface.isSaveFolder()){
 			applicationInterface.chooseFolder();
 
@@ -1158,6 +1158,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			}
 
 		}
+*/
 		clickedUpload(view);
 	}
 
@@ -1266,6 +1267,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		if (MyDebug.LOG)
 			Log.d(TAG, "bluetoothSearchDevice");
 
+		String connectDeviceName = null;
 
 		if(blueCtrl == null) {
 			Log.d(TAG, "BluetoothControoler :" + blueCtrl);
@@ -1273,13 +1275,18 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 
 		if(blueCtrl.getIsBluetoothEanble()){
-
 			blueCtrl.searchDevice();
+
 		}else {
 			if (MyDebug.LOG)
 				Log.d(TAG, "Bluetooth is not available");
-
 		}
+	}
+
+	// 블루투스 설정에서 사용
+	// 연결된 블루투스 장비 이름 가져오기
+	public String getBluetoothConnectDeviceName(){
+		return blueCtrl.getBluetoothConnectDeviceName();
 	}
 
     public void setPopupIcon() {
