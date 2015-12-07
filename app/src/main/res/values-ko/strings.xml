@@ -61,6 +61,12 @@
     <string name="scene_mode">장면 모드</string>
     <string name="white_balance">화이트 밸런스</string>
 
+    <!-- customize start -->
+    <string name="taking_panorama_photo">파노라마 사진 촬영중</string>
+    <string name="reupload">파노라마 사진 변환을 위해서 다시 업로드 합니다.</string>
+    <string name="compressing">업로드를 위해서 사진 압축중 입니다.</string>
+    <!-- customize end -->
+
     <string name="angle">각도</string>
     <string name="direction">방향</string>
     <string name="failed_to_open_camera_1">카메라를 여는 데 실패했습니다.</string>
@@ -248,4 +254,8 @@
     <string name="server_err_upload">업로드에 실패하였습니다.</string>
     <string name="server_err_internal">내부적 에러입니다</string>
 
+    <!-- custom start -->
+    <string name="stop_action">뒤로 버튼을 한번 더 누르시면 동작이 취소됩니다</string>
+    <string name="exit_app">뒤로 버튼을 한번 더 누르시면 종료됩니다</string>
+    <!-- custom end -->
 </resources>

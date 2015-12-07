@@ -1,12 +1,12 @@
 package net.sourceforge.opencamera.CameraController;
 
-import net.sourceforge.opencamera.MyDebug;
-
 import android.hardware.Camera;
 import android.util.Log;
 
+import net.sourceforge.opencamera.MyDebug;
+
 @SuppressWarnings("deprecation")
-public class CameraControllerManager1 extends CameraControllerManager {
+public class CameraControllerManager1 extends CameraControllerManager implements ICameraAction {
 	private static final String TAG = "CameraControllerManager1";
 	public int getNumberOfCameras() {
 		return Camera.getNumberOfCameras();
@@ -26,5 +26,38 @@ public class CameraControllerManager1 extends CameraControllerManager {
 	    	e.printStackTrace();
 	    	return false;
 	    }
+	}
+
+	@Override
+	public int takeSphericalPanorama() {
+		int[][] rpy = {
+				{0, 0, 0},
+				{0,-70,0},
+				{0, -45, 0},
+				{0,-45,60},
+				{0, -45, 120},
+				{0,-45,180},
+				{0, -45, 240},
+				{0,-45,300},
+				{0, 0, 0},
+				{0,0,-60},
+				{0, 0, -120},
+				{0,0,-180},
+				{0,0,-240},
+				{0,0,-300},
+				{0,45,0},
+				{0,45,60},
+				{0,45,120},
+				{0,45, 180},
+				{0,45,240},
+				{0,45,300},
+				{0,60,0},
+				{0,0,-360},
+				{0,0,0}
+		};
+
+
+
+		return 0;
 	}
 }

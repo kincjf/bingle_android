@@ -16,6 +16,7 @@ import app.akexorcist.bluetotohspp.library.DeviceList;
 
 
 /**
+ * singleton으로 만들 것, 인스턴스 겹치면 버그 생김
  * Created by yoonsKim on 2015. 11. 11..
  */
 public class BluetoothController implements BlueToothInterface {
@@ -79,9 +80,6 @@ public class BluetoothController implements BlueToothInterface {
             }
         });
         SBGCProtocol.initSBGCProtocol();
-
-
-
 
     }
 

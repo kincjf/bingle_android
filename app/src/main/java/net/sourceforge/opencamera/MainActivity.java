@@ -53,7 +53,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -68,6 +67,7 @@ import net.sourceforge.opencamera.Preview.JSONCommandInterface;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
+import net.sourceforge.opencamera.Util.BackPressCloseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -100,6 +100,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     private Map<Integer, Bitmap> preloaded_bitmap_resources = new Hashtable<Integer, Bitmap>();
     private PopupView popup_view = null;
 
+	private boolean panorama_start = false;
+
 	//블루투스 및 블루투스 리모콘 관련
 	private BluetoothController blueCtrl = null;
 	private boolean bDoubleCheck = false;
@@ -118,6 +120,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     private ToastBoxer screen_locked_toast = new ToastBoxer();
     private ToastBoxer changed_auto_stabilise_toast = new ToastBoxer();
 	private ToastBoxer exposure_lock_toast = new ToastBoxer();
+
+	private ToastBoxer take_photo_toast = new ToastBoxer();
+	private ToastBoxer on_upload_toast = new ToastBoxer();
+
 	private boolean block_startup_toast = false;
     
 	// for testing:
@@ -128,6 +134,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
 
+	private BackPressCloseHandler backPressCloseHandler;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		if( MyDebug.LOG ) {
@@ -136,7 +144,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     	long time_s = System.currentTimeMillis();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		blueCtrl = new BluetoothController(this,mHandler);
+		blueCtrl = new BluetoothController(this,mHandler);		// singleton으로 선언하기, 버그 생김
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		if( getIntent() != null && getIntent().getExtras() != null ) {
@@ -304,19 +312,20 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			}
 		});
 
+		backPressCloseHandler = new BackPressCloseHandler(this);
+
 		if( MyDebug.LOG )
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
-
-
-
 	}
-	private  Handler mHandler = new Handler() {
+
+	private Handler mHandler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
 			if(msg.what == 0){ //블루투스 리모콘 두번 클릭 체크
 				bDoubleCheck = false;
 			}
+
 			super.handleMessage(msg);
 		}
 
@@ -569,7 +578,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 				return true;
 			}
-		case KeyEvent.KEYCODE_BUTTON_X:
+		case KeyEvent.KEYCODE_BUTTON_X:		// dblclick 원리가 뭐지??
 			{
 				if(!bDoubleCheck){
 					if( event.getRepeatCount() == 0 ) {
@@ -578,8 +587,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 					bDoubleCheck = true;
 					mHandler.sendEmptyMessageDelayed(0, 1500);
 					return true;
-				}else {
-					finish();
+				} else {
+					takeSphericalPhoto();		// 더블 클릭하면 spherical panorama가 찍히게 함
 				}
 
 			}
@@ -594,13 +603,16 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			{
 				return true;
 			}
-
-
 		}
         return super.onKeyDown(keyCode, event); 
     }
 
-	//블루투스 리모콘으로 장비 컨트롤을 위한 메소드
+	/**
+	 * 블루투스 리모콘으로 장비 컨트롤을 위한 메소드
+	 * @param keyCode
+	 * @param event
+	 * @return
+	 */
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (MyDebug.LOG)
 			Log.d(TAG, "onKeyDown: " + keyCode);
@@ -1130,50 +1142,84 @@ public class MainActivity extends Activity implements JSONCommandInterface{
         super.onConfigurationChanged(newConfig);
     }
 
-    public void clickedTakePhoto(View view) {
+	/**
+	 * spherical panorama photo 촬영, 나중에 밖으로 빼자
+	 * 그리고 injection을 사용해야겠음. 코드가 너무 꼬인다.
+	 * 나중에 controller쪽으로 빼자
+	 * 나중에 정지 할 수 있게 만들기
+	 */
+    public void takeSphericalPhoto() {
 		if( MyDebug.LOG )
-			Log.d(TAG, "clickedTakePhoto");
-
-
-
+			Log.d(TAG, "takeSphericalPhoto");
 
 		if(!applicationInterface.isSaveFolder()){
 			applicationInterface.chooseFolder();
-
 		}
 
-		for (int i=-45; i<90; i+=90){
-			for (int k = 0;k<360;k+=30){
-				blueCtrl.turnClockWise(k, i);
-				try {
-					Thread.sleep(1000);
+		if (!blueCtrl.getIsBluetoothEanble()) {
+			Log.e(TAG, "Cannot take spherical panorama : bluetooth isn't connect");
+			return;
+		}
 
-					this.takePicture();
-
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+		final Thread backThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				synchronized (this) {
+					panorama_start = true;
 				}
 
-			}
+				for (int i=-45; i<90; i+=90){
+					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
 
-		}
-		clickedUpload(view);
+					for (int k = 0;k<360;k+=30){
+						if (!panorama_start) {
+							Log.d(TAG, "Taking spherical panorama action has stoped");
+							// 임시폴더를 비워야 함
+							return;
+						}
+
+						blueCtrl.turnClockWise(k, i);
+						try {
+							Thread.sleep(1000);
+
+							takePicture();
+
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+					}
+
+				}
+
+				doUpload();
+				synchronized (this) {
+					panorama_start = false;
+				}
+			}
+		});
+
+		backThread.setDaemon(true);
+		backThread.start();
 	}
 
-	//카메라 업로드 시작
-	public void clickedUpload(View view) {
+	/**
+	 * 	카메라 업로드 시작
+	 * 	???? 정확히 뭐하는거징? 무슨 버튼이랑 연동이 되어 있는건지
+	 * 	(테스트 때문인가??)
+	 */
+	public void doUpload() {
 
 		if (MyDebug.LOG)
 			Log.d(TAG, "camStart");
 
 		String zipPath=null;
 		if(applicationInterface.isZip()){
-			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
-
+			preview.showToast(on_upload_toast, R.string.reupload);
 			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
 		}else {
-			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
+			preview.showToast(on_upload_toast, R.string.compressing);
 			zipPath = applicationInterface.compressFolder();
 		}
 
@@ -1190,7 +1236,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 			transfer.execute(params);
 		}
-
 	}
 
 
@@ -1222,6 +1267,12 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 	}
 	//------------- END --------------
+
+	public void clickedTakePhoto(View view) {
+		if( MyDebug.LOG )
+			Log.d(TAG, "clickedTakePhoto");
+		this.takePicture();
+	}
 
     public void clickedSwitchCamera(View view) {
 		if( MyDebug.LOG )
@@ -1676,15 +1727,22 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				Log.d(TAG, "close settings");
 			setWindowFlagsForCamera();
 			updateForSettings();
-        }
+
+			super.onBackPressed();		// 이 부분이 정확히 어떻게 돌아가는거지??
+		}
         else {
 			if( popupIsOpen() ) {
     			closePopup();
     			return;
-    		}
+    		} else if (panorama_start) {		// stop action
+				backPressCloseHandler.onBackPressed(panorama_start);
+				return;
+			} else {		// exit
+				backPressCloseHandler.onBackPressed();
+				return;
+			}
         }
-        super.onBackPressed();        
-    }
+	}
     
     boolean usingKitKatImmersiveMode() {
     	// whether we are using a Kit Kat style immersive mode (either hiding GUI, or everything)
@@ -2844,7 +2902,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 						upObject.put(CONNECT_URL, SERVER_URL+uploadResult.getString(WEB_FILE_DIR));
 						upObject.put(WEB_FILE_DIR,uploadResult.getString(WEB_FILE_DIR));
 
-						return doInBackground(upObject);
+					return doInBackground(upObject);
 					case CMD_DOWNLOAD:
 						runOnUiThread(new Runnable() {
 							@Override
