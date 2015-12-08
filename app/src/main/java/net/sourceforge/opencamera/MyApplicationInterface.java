@@ -2920,6 +2920,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		File f = new File(folderPath);
 		File zipFolder = new File(IMG_ZIP_DIR);
 		String zipName = IMG_ZIP_DIR+f.getName()+".zip";
+//		String zipName = IMG_ZIP_DIR+"test";
 
 		if( !zipFolder.exists())
 			zipFolder.mkdir();

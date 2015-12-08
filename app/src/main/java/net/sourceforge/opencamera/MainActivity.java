@@ -107,7 +107,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	private boolean bDoubleCheck = false;
 	private SBGCProtocol sbgcProtocol = new SBGCProtocol();
 
-    private SoundPool sound_pool = null;
+	private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
 	
 	private TextToSpeech textToSpeech = null;
@@ -1172,6 +1172,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
 
 					for (int k = 0;k<360;k+=30){
+
 						if (!panorama_start) {
 							Log.d(TAG, "Taking spherical panorama action has stoped");
 							// 임시폴더를 비워야 함
@@ -1179,6 +1180,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 						}
 
 						blueCtrl.turnClockWise(k, i);
+
 						try {
 							Thread.sleep(1000);
 
@@ -1194,7 +1196,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				}
 
 				doUpload();
-				synchronized (this) {
+			synchronized (this) {
 					panorama_start = false;
 				}
 			}
@@ -2840,14 +2842,22 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		final String SERVER_URL = "http://192.168.0.14:8080/";
 		final String UPLOAD_ZIP_URL = SERVER_URL+"upload/";
 
-		ProgressDialog asyncDialog = new ProgressDialog(MainActivity.this);
+		ProgressDialog asyncDialog;
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			asyncDialog.setMessage("Please wait..");
-			asyncDialog.show();
+
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					asyncDialog = new ProgressDialog(MainActivity.this);
+					asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+					asyncDialog.setMessage("Please wait..");
+					asyncDialog.show();
+
+				}
+			});
 		}
 
 		@Override
@@ -2859,8 +2869,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				switch (query.getString(COMMAND)){
                     case CMD_UPLOAD:
 						runOnUiThread(new Runnable() {
+
 							@Override
 							public void run() {
+
 								asyncDialog.setMessage("now uploading");
 
 							}
@@ -2883,6 +2895,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 					return doInBackground(upObject);
 					case CMD_DOWNLOAD:
 						runOnUiThread(new Runnable() {
+
 							@Override
 							public void run() {
 								asyncDialog.setMessage("now downloading");
@@ -2902,13 +2915,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		protected void onPostExecute(JSONObject result) {
 			super.onPostExecute(result);
 			runOnUiThread(new Runnable() {
+
 				@Override
 				public void run() {
 					asyncDialog.setMessage("success");
-
+					asyncDialog.dismiss();
 				}
+
 			});
-			asyncDialog.dismiss();
+//			asyncDialog.dismiss();
 
 			int status=0;
 			try {
