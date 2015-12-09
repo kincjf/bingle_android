@@ -156,6 +156,7 @@ public class BluetoothController implements BlueToothInterface {
     @Override
     public void turnClockWise(int yaw,int pitch) {
 
+        SBGCProtocol.setCurrentMode(SBGCProtocol.MODE_ANGLE);
         SBGCProtocol.requestMoveGimbalTo(0,pitch,yaw);
 
     }

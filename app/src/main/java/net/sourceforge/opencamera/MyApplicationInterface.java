@@ -2930,7 +2930,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		folderDelete(folderPath);
+//		folderDelete(folderPath);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 

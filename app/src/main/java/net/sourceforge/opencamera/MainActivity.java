@@ -529,10 +529,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		case KeyEvent.KEYCODE_DPAD_UP:
 			{
 				//리모콘 세로 방향의 RIGHT버튼
-				sbgcProtocol.setCurrentMode(4); //RC MODE
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()){
 					sbgcProtocol.requestMoveGimbalTo(0 , 0, 90);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}else {
 					sbgcProtocol.requestMoveGimbalTo(0, 0, 50);
 				}
@@ -542,10 +547,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		case KeyEvent.KEYCODE_DPAD_DOWN:
 			{
 				//리모콘 세로 방향의 LEFT버튼
-				sbgcProtocol.setCurrentMode(4); //RC MODE
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
 					sbgcProtocol.requestMoveGimbalTo(0, 0, -90);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}else{
 					sbgcProtocol.requestMoveGimbalTo(0, 0, -50);
 				}
@@ -555,10 +565,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		case KeyEvent.KEYCODE_DPAD_LEFT:
 			{
 				//리모콘 세로 방향의 UP버튼
-				sbgcProtocol.setCurrentMode(4); //RC MODE
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
 					sbgcProtocol.requestMoveGimbalTo(0, 10, 0);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}else {
 					sbgcProtocol.requestMoveGimbalTo(0, 20, 0);
 				}
@@ -568,10 +583,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		case KeyEvent.KEYCODE_DPAD_RIGHT:
 			{
 				//리모콘 세로 방향의 DOWN버튼
-				sbgcProtocol.setCurrentMode(4); //RC MODE
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
 					sbgcProtocol.requestMoveGimbalTo(0, -20, 0);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}else {
 					sbgcProtocol.requestMoveGimbalTo(0, -10, 0);
 				}
@@ -604,6 +624,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				return true;
 			}
 		}
+
         return super.onKeyDown(keyCode, event); 
     }
 
@@ -1167,6 +1188,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				synchronized (this) {
 					panorama_start = true;
 				}
+				SBGCProtocol.setCurrentMode(SBGCProtocol.MODE_ANGLE);
 
 				for (int i=-45; i<90; i+=90){
 					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
@@ -1179,7 +1201,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 							return;
 						}
 
-						blueCtrl.turnClockWise(k, i);
+						SBGCProtocol.requestMoveGimbalTo(0, i, k);
 
 						try {
 							Thread.sleep(1000);
@@ -2839,7 +2861,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	}
 
 	class Http extends AsyncTask<JSONObject,JSONObject,JSONObject>{
-		final String SERVER_URL = "http://192.168.0.14:8080/";
+		final String SERVER_URL = "http://bingle.pastelplus.com:8080/";
 		final String UPLOAD_ZIP_URL = SERVER_URL+"upload/";
 
 		ProgressDialog asyncDialog;
