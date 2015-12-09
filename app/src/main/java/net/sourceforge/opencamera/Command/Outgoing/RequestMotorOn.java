@@ -7,6 +7,7 @@ import static net.sourceforge.opencamera.Data.Serial.ProtocolUtil.sendCommand;
 
 /**
  * Created by KIMSEONHO on 2015-11-16.
+ * CMD_MOTORS_ON - Request switch motor on
  */
 public class RequestMotorOn implements ICommand {
     @Override

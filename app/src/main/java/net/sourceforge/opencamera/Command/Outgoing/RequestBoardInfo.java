@@ -6,6 +6,7 @@ import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 
 /**
  * Created by KIMSEONHO on 2015-11-17.
+ * CMD_BOARD_INFO - version and board info information
  */
 public class RequestBoardInfo implements ICommand {
 

@@ -11,14 +11,17 @@ import android.view.LayoutInflater;
 import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
+/**
+ * Created by WG on 2015-10-22.
+ */
 
-final class GridViewAdapter extends ArrayAdapter {
+public class GalleryAdapter extends ArrayAdapter {
     private static final String TAG = "GalleryAdapter";
     private final Context context;
     private ArrayList<String> urls = new ArrayList<String>();
     private LayoutInflater inflater;
 
-    public GridViewAdapter(Context context, ArrayList<String> url) {
+    public GalleryAdapter(Context context, ArrayList<String> url) {
         super(context,R.layout.gallery_layout, url);
         if( MyDebug.LOG ) {
             Log.d(TAG, "load");
@@ -43,7 +46,6 @@ final class GridViewAdapter extends ArrayAdapter {
             Glide.with(context)
                     .load("file://" + urls.get(position))
                     .placeholder(R.drawable.gallery)
-                    .override(200, 200)
                     .centerCrop()
                     .into((ImageView) convertView);
         }else{

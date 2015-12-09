@@ -8,7 +8,7 @@ import net.sourceforge.opencamera.Data.Serial.ProtocolUtil;
 
 /**
  * Created by KIMSEONHO on 2015-11-17.
- * version and board info information
+ * CMD_BOARD_INFO - version and board info information
  */
 public class ParseBoardInfo implements ICommand {
 

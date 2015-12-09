@@ -15,6 +15,7 @@ import com.google.android.gms.panorama.Panorama;
 import com.google.android.gms.panorama.PanoramaApi.PanoramaResult;
 
 /**
+ * Activiry에서 일반 Class Type로 바꿔야 됨.
  * Created by WG on 2015-10-28.
  */
 public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, OnConnectionFailedListener {
@@ -22,6 +23,7 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     public String filepath = null;
 
     private GoogleApiClient mClient;
+    int requestStatus = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,7 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
         Log.i(TAG, "Client connect");
     }
 
+
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "filepath : " + filepath);
@@ -54,7 +57,8 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
                             Intent viewerIntent = result.getViewerIntent();
                             Log.i(TAG, "found viewerIntent: " + viewerIntent);
                             if (viewerIntent != null) {
-                                startActivity(viewerIntent);
+                                startActivityForResult(viewerIntent, requestStatus);
+                            } else {
 
                             }
                         } else {
@@ -73,7 +77,6 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     @Override
     public void onConnectionFailed(ConnectionResult status) {
         Log.e(TAG, "connection failed: " + status);
-        // TODO fill in
     }
 
     @Override
@@ -90,5 +93,17 @@ public class GalleryPanoViewer extends Activity implements ConnectionCallbacks, 
     }
 
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode)
+        {
+            case 0 :       // 정상 종료
+                mClient.disconnect();
+                break;
+            default:
+                Log.d(TAG, "Error when Panorama Viewer exited");
+        }
+        Log.i(TAG, "resultCode : " + resultCode);
+    }
 }

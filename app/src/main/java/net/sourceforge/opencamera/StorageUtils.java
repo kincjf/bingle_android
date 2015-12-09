@@ -584,7 +584,11 @@ public class StorageUtils {
 		return media;
     }
 
-	//get all Pano image
+	/**
+	 * Created by WG
+	 * 특정 폴더의 모든 이미지 파일의 경로를 얻어서 반환
+	 * --------- START -----------
+	 */
 	ArrayList<String> getAllImage() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "getAllMedia: images");
@@ -623,7 +627,7 @@ public class StorageUtils {
 
 
 					strImage = cursor.getString(nCol);
-					if (strImage != null && strImage.startsWith("/storage/emulated/0/Pictures/pastel/")){
+					if (strImage != null && strImage.startsWith("/storage/emulated/0/DCIM/OpenCamera/bingle/")){
 						Log.d(TAG, "Set image is " + strImage);
 
 						image_list.add(strImage);

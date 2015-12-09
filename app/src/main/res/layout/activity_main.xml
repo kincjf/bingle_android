@@ -171,16 +171,6 @@
         android:onClick="clickedShare"
 
         />
-    <ImageButton
-        android:id="@+id/tmp"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:padding="10dp"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/share"
-        android:src="@drawable/focus_mode_manual"
-        android:onClick="clickedUpload"
-        />
 
     <SeekBar
         android:id="@+id/exposure_seekbar"
@@ -229,7 +219,17 @@
         android:id="@+id/locker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        >
+
+        <ScrollView
+            android:id="@+id/hide_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="right|top"
+            android:fillViewport="false">
+
+        </ScrollView>
+    </FrameLayout>
 
     <ScrollView
         android:id="@+id/popup_container"
@@ -238,13 +238,5 @@
         android:layout_toLeftOf="@+id/settings"
         android:layout_below="@+id/settings"
         />
-    
-    <ScrollView
-        android:id="@+id/hide_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-    </ScrollView>
 
 </RelativeLayout>

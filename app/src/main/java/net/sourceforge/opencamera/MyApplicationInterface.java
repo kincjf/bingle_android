@@ -2859,11 +2859,13 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		}
 		return false;
 	}
+
 	//해당 폴더 사용
 	public boolean chooseFolder() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "useFolder");
 		String folderName = ROOT_DIR+System.currentTimeMillis ( );
+		//String folderName = ROOT_DIR+"2015092304200382";
 		current_folder=new File(folderName);
 		if( !current_folder.exists() )
 			current_folder.mkdir();
@@ -2918,6 +2920,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		File f = new File(folderPath);
 		File zipFolder = new File(IMG_ZIP_DIR);
 		String zipName = IMG_ZIP_DIR+f.getName()+".zip";
+//		String zipName = IMG_ZIP_DIR+"test";
 
 		if( !zipFolder.exists())
 			zipFolder.mkdir();
@@ -2927,7 +2930,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		folderDelete(folderPath);
+//		folderDelete(folderPath);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 

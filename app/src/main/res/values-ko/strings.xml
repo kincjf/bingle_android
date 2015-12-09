@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">오픈 카메라</string>
+    <string name="app_name">빙글</string>
     <string name="action_settings">설정</string>
     <string name="action_popup">팝업 설정</string>
     <string name="intro_text">터치해서 초점을 맞추고 파란색 카메라 버튼을 눌러서 사진을 찍습니다. 더 많은 도움이 필요하시면, 설정에서 온라인 도움말을 선택하세요. 오픈 카메라는 완전 무료입니다. 앱이 마음에 드시면 기부용 앱을 구매해보세요 (온라인 도움말 혹은 설정에서 링크를 선택).\n\n개인정보 정책: 위치 퍼미션은 지오태깅을 위해 필요합니다. 하지만 비활성화가 기본값입니다. 만약 활성화되면, 당신의 위치는 저장된 파일에 기록됩니다 (이것은 오직 지오태깅 용도로만 사용됩니다).</string>
@@ -60,6 +60,12 @@
     <string name="color_effect">색상 효과</string>
     <string name="scene_mode">장면 모드</string>
     <string name="white_balance">화이트 밸런스</string>
+
+    <!-- customize start -->
+    <string name="taking_panorama_photo">파노라마 사진 촬영중</string>
+    <string name="reupload">파노라마 사진 변환을 위해서 다시 업로드 합니다.</string>
+    <string name="compressing">업로드를 위해서 사진 압축중 입니다.</string>
+    <!-- customize end -->
 
     <string name="angle">각도</string>
     <string name="direction">방향</string>
@@ -200,6 +206,12 @@
     <string name="preference_video_flash">동영상 녹화시 깜빡임</string>
     <string name="preference_video_flash_summary">만약 활성화되면 동영상 촬영시 플래시가 깜빡입니다 (원거리에서 카메라가 촬영중임을 알리는 데 사용됩니다)</string>
 
+    <string name="preference_bluetooth_settings">블루투스 설정</string>
+    <string name="preference_auto_connect">블루투스 자동 연결</string>
+    <string name="preference_auto_connect_summary">블루투스 장비 리스트에서 선택한 장비와 블루투스 자동 연결을 On/Off 할수 있습니다.</string>
+    <string name="preference_bluetooth_device_list">블루투스 장비 리스트</string>
+    <string name="preference_bluetooth_device_list_summary">주위 블루투스 장비를 확인하여 원하는 장비와 연결할수 있습니다.</string>
+
     <string name="preference_category_online">기타</string>
     <string name="preference_online_help">온라인 도움말</string>
     <string name="preference_donate">개발을 지원하기 위해 기부하기</string>
@@ -242,4 +254,8 @@
     <string name="server_err_upload">업로드에 실패하였습니다.</string>
     <string name="server_err_internal">내부적 에러입니다</string>
 
+    <!-- custom start -->
+    <string name="stop_action">뒤로 버튼을 한번 더 누르시면 동작이 취소됩니다</string>
+    <string name="exit_app">뒤로 버튼을 한번 더 누르시면 종료됩니다</string>
+    <!-- custom end -->
 </resources>

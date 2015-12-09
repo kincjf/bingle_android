@@ -618,6 +618,48 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
                 }
             });
         }
+
+		/**
+		 * Created by WG on 2015.12.3
+		 * 블루투스 설정 관련
+		 * --------- START -----------
+		 */
+		{
+			final Preference pref = findPreference("preference_auto_connect");
+			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference arg0) {
+					if( pref.getKey().equals("preference_auto_connect") ) {
+						if( MyDebug.LOG )
+							Log.d(TAG, "user clicked bluetooth auto connect");
+
+
+						return false;
+					}
+					return false;
+				}
+			});
+		}
+
+		{
+			final Preference pref = findPreference("preference_bluetooth_device_list");
+			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference arg0) {
+					if( pref.getKey().equals("preference_bluetooth_device_list") ) {
+						if( MyDebug.LOG )
+							Log.d(TAG, "user clicked bluetooth device list");
+
+						MainActivity main_activity = (MainActivity)MyPreferenceFragment.this.getActivity();
+						main_activity.bluetoothSearchDevice();
+
+						return false;
+					}
+					return false;
+				}
+			});
+		}
+		//--------------END--------------
 	}
 	
 	/*private void readFromBundle(Bundle bundle, String intent_key, String preference_key, String default_value, String preference_category_key) {
@@ -649,6 +691,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         	pg.removePreference(pref);
 		}
 	}*/
+
 	
 	public void onResume() {
 		super.onResume();

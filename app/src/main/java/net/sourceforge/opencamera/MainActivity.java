@@ -53,7 +53,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -63,10 +62,12 @@ import android.widget.ZoomControls;
 import net.sourceforge.opencamera.BluetoothController.BluetoothController;
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
+import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 import net.sourceforge.opencamera.Preview.JSONCommandInterface;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.PopupView;
+import net.sourceforge.opencamera.Util.BackPressCloseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,9 +79,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
-import app.akexorcist.bluetotohspp.library.DeviceList;
 
 public class MainActivity extends Activity implements JSONCommandInterface{
 	private static final String TAG = "MainActivity";
@@ -101,10 +100,14 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     private Map<Integer, Bitmap> preloaded_bitmap_resources = new Hashtable<Integer, Bitmap>();
     private PopupView popup_view = null;
 
-	//gallery
-	private ImageView imageView = null;
+	private boolean panorama_start = false;
 
-    private SoundPool sound_pool = null;
+	//블루투스 및 블루투스 리모콘 관련
+	private BluetoothController blueCtrl = null;
+	private boolean bDoubleCheck = false;
+	private SBGCProtocol sbgcProtocol = new SBGCProtocol();
+
+	private SoundPool sound_pool = null;
 	private SparseIntArray sound_ids = null;
 	
 	private TextToSpeech textToSpeech = null;
@@ -117,6 +120,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     private ToastBoxer screen_locked_toast = new ToastBoxer();
     private ToastBoxer changed_auto_stabilise_toast = new ToastBoxer();
 	private ToastBoxer exposure_lock_toast = new ToastBoxer();
+
+	private ToastBoxer take_photo_toast = new ToastBoxer();
+	private ToastBoxer on_upload_toast = new ToastBoxer();
+
 	private boolean block_startup_toast = false;
     
 	// for testing:
@@ -127,6 +134,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
 
+	private BackPressCloseHandler backPressCloseHandler;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		if( MyDebug.LOG ) {
@@ -135,6 +144,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     	long time_s = System.currentTimeMillis();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		blueCtrl = new BluetoothController(this,mHandler);		// singleton으로 선언하기, 버그 생김
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		if( getIntent() != null && getIntent().getExtras() != null ) {
@@ -214,7 +224,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 
 		clearSeekBar();
-		
+
         preview = new Preview(applicationInterface, savedInstanceState, ((ViewGroup) this.findViewById(R.id.preview)));
 		
 	    View switchCameraButton = (View) findViewById(R.id.switch_camera);
@@ -302,18 +312,20 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			}
 		});
 
+		backPressCloseHandler = new BackPressCloseHandler(this);
+
 		if( MyDebug.LOG )
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
-
-
-		BluetoothController blueCtrl =new BluetoothController(this,mHandler);
-		blueCtrl.enableBluetooth();
-
 	}
-	private  Handler mHandler = new Handler() {
+
+	private Handler mHandler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
+			if(msg.what == 0){ //블루투스 리모콘 두번 클릭 체크
+				bDoubleCheck = false;
+			}
+
 			super.handleMessage(msg);
 		}
 
@@ -383,6 +395,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	    	textToSpeech = null;
 	    }
 	    super.onDestroy();
+		//블루투스 서비스 정지
+		blueCtrl.stopService();
 	}
 	
 	@Override
@@ -400,7 +414,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		editor.apply();
 	}
 
-	public boolean onKeyDown(int keyCode, KeyEvent event) { 
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onKeyDown: " + keyCode);
 		switch( keyCode ) {
@@ -507,9 +521,165 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				this.zoomOut();
 	            return true;
 			}
+		/**
+		 * Created by WG .
+		 * 블루투스 리모콘(GameMode) 관련 KeyEvent 처리
+		 * ----------- START ------------
+		 */
+		case KeyEvent.KEYCODE_DPAD_UP:
+			{
+				//리모콘 세로 방향의 RIGHT버튼
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
+
+				if(event.isLongPress()){
+					sbgcProtocol.requestMoveGimbalTo(0 , 0, 90);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, 0, 50);
+				}
+
+				return true;
+			}
+		case KeyEvent.KEYCODE_DPAD_DOWN:
+			{
+				//리모콘 세로 방향의 LEFT버튼
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, 0, -90);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}else{
+					sbgcProtocol.requestMoveGimbalTo(0, 0, -50);
+				}
+
+				return true;
+			}
+		case KeyEvent.KEYCODE_DPAD_LEFT:
+			{
+				//리모콘 세로 방향의 UP버튼
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, 10, 0);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, 20, 0);
+				}
+
+				return true;
+			}
+		case KeyEvent.KEYCODE_DPAD_RIGHT:
+			{
+				//리모콘 세로 방향의 DOWN버튼
+				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
+
+				if(event.isLongPress()) {
+					sbgcProtocol.requestMoveGimbalTo(0, -20, 0);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}else {
+					sbgcProtocol.requestMoveGimbalTo(0, -10, 0);
+				}
+
+				return true;
+			}
+		case KeyEvent.KEYCODE_BUTTON_X:		// dblclick 원리가 뭐지??
+			{
+				if(!bDoubleCheck){
+					if( event.getRepeatCount() == 0 ) {
+						takePicture();
+					}
+					bDoubleCheck = true;
+					mHandler.sendEmptyMessageDelayed(0, 1500);
+					return true;
+				} else {
+					takeSphericalPhoto();		// 더블 클릭하면 spherical panorama가 찍히게 함
+				}
+
+			}
+		case KeyEvent.KEYCODE_BUTTON_Y:
+			{
+				//비디오와 사진촬영 switch 버튼 강제 클릭
+				ImageButton iBtn = (ImageButton)findViewById(R.id.switch_video);
+				iBtn.performClick();
+				return true;
+			}
+		case KeyEvent.KEYCODE_BUTTON_A:
+			{
+				return true;
+			}
 		}
+
         return super.onKeyDown(keyCode, event); 
     }
+
+	/**
+	 * 블루투스 리모콘으로 장비 컨트롤을 위한 메소드
+	 * @param keyCode
+	 * @param event
+	 * @return
+	 */
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (MyDebug.LOG)
+			Log.d(TAG, "onKeyDown: " + keyCode);
+		switch (keyCode) {
+			case KeyEvent.KEYCODE_DPAD_UP:
+			{
+				//리모콘 세로 방향의 RIGHT버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_DOWN:
+			{
+				//리모콘 세로 방향의 LEFT버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_LEFT:
+			{
+				//리모콘 세로 방향의 UP버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
+			{
+				//리모콘 세로 방향의 DOWN버튼
+				//값 초기화
+				sbgcProtocol.requestMoveGimbalTo(0 , 0, 0);
+
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+	//------ END --------
+
+	public void onStart() {
+		super.onStart();
+		//어플 실행시 블루투스 활성화 확인
+		blueCtrl.enableBluetooth();
+	}
 	
 	void setSeekbarZoom() {
 		if( MyDebug.LOG )
@@ -951,6 +1121,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			view.setImageResource(resource);
 			view.setTag(resource); // for testing
 		}
+
     }
     
     boolean getUIPlacementRight() {
@@ -992,32 +1163,89 @@ public class MainActivity extends Activity implements JSONCommandInterface{
         super.onConfigurationChanged(newConfig);
     }
 
-    public void clickedTakePhoto(View view) {
+	/**
+	 * spherical panorama photo 촬영, 나중에 밖으로 빼자
+	 * 그리고 injection을 사용해야겠음. 코드가 너무 꼬인다.
+	 * 나중에 controller쪽으로 빼자
+	 * 나중에 정지 할 수 있게 만들기
+	 */
+    public void takeSphericalPhoto() {
 		if( MyDebug.LOG )
-			Log.d(TAG, "clickedTakePhoto");
-
-
-
+			Log.d(TAG, "takeSphericalPhoto");
 
 		if(!applicationInterface.isSaveFolder()){
 			applicationInterface.chooseFolder();
-
 		}
 
-		this.takePicture();
+		if (!blueCtrl.getIsBluetoothEanble()) {
+			Log.e(TAG, "Cannot take spherical panorama : bluetooth isn't connect");
+			return;
+		}
+
+	final Thread backThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				synchronized (this) {
+					panorama_start = true;
+				}
+				SBGCProtocol.setCurrentMode(SBGCProtocol.MODE_ANGLE);
+
+				for (int i=-45; i<90; i+=90){
+					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
+
+					for (int k = 0;k<360;k+=30){
+
+						if (!panorama_start) {
+							Log.d(TAG, "Taking spherical panorama action has stoped");
+							// 임시폴더를 비워야 함
+							return;
+						}
+
+						SBGCProtocol.requestMoveGimbalTo(0, i, k);
+
+						try {
+							Thread.sleep(1000);
+
+							takePicture();
+
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+					}
+
+				}
+
+				doUpload();
+			synchronized (this) {
+					panorama_start = false;
+				}
+			}
+		});
+
+
+		backThread.setDaemon(true);
+		backThread.start();
+
 	}
-	//카메라 업로드 시작
-	public void clickedUpload(View view) {
+
+	/**
+	 * 	카메라 업로드 시작
+	 * 	???? 정확히 뭐하는거징? 무슨 버튼이랑 연동이 되어 있는건지
+	 * 	(테스트 때문인가??)
+	 */
+	public void doUpload() {
+
 		if (MyDebug.LOG)
 			Log.d(TAG, "camStart");
 
 		String zipPath=null;
 		if(applicationInterface.isZip()){
-			Toast.makeText(getApplicationContext(), "전송 실패했던 파일을 업로드합니다", Toast.LENGTH_SHORT).show();
-
+			preview.showToast(on_upload_toast, R.string.reupload);
 			zipPath = applicationInterface.getSaveFolder();//압축파일이 있다면 압축경로가 saveFolder에 저장되어있음
 		}else {
-			Toast.makeText(getApplicationContext(), "압축할게요", Toast.LENGTH_SHORT).show();
+			preview.showToast(on_upload_toast, R.string.compressing);
 			zipPath = applicationInterface.compressFolder();
 		}
 
@@ -1034,7 +1262,12 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 			transfer.execute(params);
 		}
+	}
 
+	public void clickedTakePhoto(View view) {
+		if( MyDebug.LOG )
+			Log.d(TAG, "clickedTakePhoto");
+		this.takePicture();
 	}
 
     public void clickedSwitchCamera(View view) {
@@ -1055,6 +1288,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		    switchCameraButton.setEnabled(false); // prevent slowdown if user repeatedly clicks
 			this.preview.setCamera(cameraId);
 		    switchCameraButton.setEnabled(true);
+
 		}
     }
 
@@ -1071,7 +1305,35 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		if( !block_startup_toast ) {
 			this.showPhotoVideoToast();
 		}
+
     }
+
+	//블루투스 설정에서 블루투스 장비 검색 할때 사용
+	public void bluetoothSearchDevice(){
+		if (MyDebug.LOG)
+			Log.d(TAG, "bluetoothSearchDevice");
+
+		String connectDeviceName = null;
+
+		if(blueCtrl == null) {
+			Log.d(TAG, "BluetoothControoler :" + blueCtrl);
+			blueCtrl = new BluetoothController(this, mHandler);
+		}
+
+		if(blueCtrl.getIsBluetoothEanble()){
+			blueCtrl.searchDevice();
+
+		}else {
+			if (MyDebug.LOG)
+				Log.d(TAG, "Bluetooth is not available");
+		}
+	}
+
+	// 블루투스 설정에서 사용
+	// 연결된 블루투스 장비 이름 가져오기
+	public String getBluetoothConnectDeviceName(){
+		return blueCtrl.getBluetoothConnectDeviceName();
+	}
 
     public void setPopupIcon() {
 		if( MyDebug.LOG )
@@ -1285,7 +1547,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		closePopup();
 		preview.cancelTimer(); // best to cancel any timer, in case we take a photo while settings window is open, or when changing settings
 		preview.stopVideo(false); // important to stop video, as we'll be changing camera parameters when the settings window closes
-		
+
 		Bundle bundle = new Bundle();
 		bundle.putInt("cameraId", this.preview.getCameraId());
 		bundle.putString("camera_api", this.preview.getCameraAPI());
@@ -1467,15 +1729,22 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				Log.d(TAG, "close settings");
 			setWindowFlagsForCamera();
 			updateForSettings();
-        }
+
+			super.onBackPressed();		// 이 부분이 정확히 어떻게 돌아가는거지??
+		}
         else {
 			if( popupIsOpen() ) {
     			closePopup();
     			return;
-    		}
+    		} else if (panorama_start) {		// stop action
+				panorama_start = backPressCloseHandler.onBackPressed(panorama_start);
+				return;
+			} else {		// exit
+				backPressCloseHandler.onBackPressed();
+				return;
+			}
         }
-        super.onBackPressed();        
-    }
+	}
     
     boolean usingKitKatImmersiveMode() {
     	// whether we are using a Kit Kat style immersive mode (either hiding GUI, or everything)
@@ -1697,100 +1966,36 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "time to update gallery icon: " + (System.currentTimeMillis() - time_s));
     }
 
-	/* 기존 opencamera 소스파일
-    public void clickedGallery(View view) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clickedGallery");
-		//Intent intent = new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		Uri uri = applicationInterface.getStorageUtils().getLastMediaScanned();
-		if( uri == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "go to latest media");
-			StorageUtils.Media media = applicationInterface.getStorageUtils().getLatestMedia();
-			if( media != null ) {
-				uri = media.uri;
-			}
-		}
-
-		if( uri != null ) {
-			// check uri exists
-			if( MyDebug.LOG )
-				Log.d(TAG, "found most recent uri: " + uri);
-			try {
-				ContentResolver cr = getContentResolver();
-				ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-				if( pfd == null ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "uri no longer exists (1): " + uri);
-					uri = null;
-				}
-				pfd.close();
-			}
-			catch(IOException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "uri no longer exists (2): " + uri);
-				uri = null;
-			}
-		}
-		if( uri == null ) {
-			uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-		}
-		if( !is_test ) {
-			// don't do if testing, as unclear how to exit activity to finish test (for testGallery())
-			if( MyDebug.LOG )
-				Log.d(TAG, "launch uri:" + uri);
-			final String REVIEW_ACTION = "com.android.camera.action.REVIEW";
-			try {
-				// REVIEW_ACTION means we can view video files without autoplaying
-				Intent intent = new Intent(REVIEW_ACTION, uri);
-				this.startActivity(intent);
-			}
-			catch(ActivityNotFoundException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "REVIEW_ACTION intent didn't work, try ACTION_VIEW");
-				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-				// from http://stackoverflow.com/questions/11073832/no-activity-found-to-handle-intent - needed to fix crash if no gallery app installed
-				//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("blah")); // test
-				if( intent.resolveActivity(getPackageManager()) != null ) {
-					this.startActivity(intent);
-				}
-				else{
-					preview.showToast(null, R.string.no_gallery_app);
-				}
-			}
-		}
-    }
-	*/
-
+	/**
+	 * Created by WG
+	 * Gallery 버튼 클릭시
+	 * --------- START -----------
+	 */
 	public void clickedGallery(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedGallery");
 
-		if( !is_test ) {
+		try {
+			// 특정 폴더의 이미지 파일들의 경로를 저장
+			ArrayList<String> image_list = applicationInterface.getStorageUtils().getAllImage();
 
-			try {
-				// REVIEW_ACTION means we can view video files without autoplaying
-				ArrayList<String> image_list = applicationInterface.getStorageUtils().getAllImage();
+			Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
+			intent.putExtra("imageList", image_list);
+			startActivity(intent);
 
-
-				Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
-				intent.putExtra("imageList", image_list);
-				startActivity(intent);
-
-
-				/*
-				Intent intent = new Intent(MainActivity.this, GalleryViewPagerActivity.class);
-				intent.putExtra("imageList", image_list);
-				startActivity(intent);
-				*/
+			/*
+			Intent intent = new Intent(MainActivity.this, GalleryViewPagerActivity.class);
+			intent.putExtra("imageList", image_list);
+			startActivity(intent);
+			*/
 			}
-			catch(ActivityNotFoundException e) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "GalleryActivity intent didn't work");
+		catch(ActivityNotFoundException e) {
+			if( MyDebug.LOG )
+				Log.d(TAG, "GalleryActivity intent didn't work");
 
-			}
 		}
 	}
+	//---------- END -------------
 
     private void updateFolderHistory() {
 		String folder_name = applicationInterface.getStorageUtils().getSaveLocation();
@@ -1890,6 +2095,13 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     			preview.showToast(null, R.string.saf_cancelled);
     		}
         }
+
+		// 블루투스 관련
+		else if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
+			blueCtrl.onActivityResult(requestCode,resultCode,resultData);
+		} else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
+			blueCtrl.onActivityResult(requestCode,resultCode,resultData);
+		}
     }
 
     private void openFolderChooserDialog() {
@@ -2649,17 +2861,25 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	}
 
 	class Http extends AsyncTask<JSONObject,JSONObject,JSONObject>{
-		final String SERVER_URL = "http://192.168.0.14:8080/";
+		final String SERVER_URL = "http://bingle.pastelplus.com:8080/";
 		final String UPLOAD_ZIP_URL = SERVER_URL+"upload/";
 
-		ProgressDialog asyncDialog = new ProgressDialog(MainActivity.this);
+		ProgressDialog asyncDialog;
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			asyncDialog.setMessage("Please wait..");
-			asyncDialog.show();
+
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					asyncDialog = new ProgressDialog(MainActivity.this);
+					asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+					asyncDialog.setMessage("Please wait..");
+					asyncDialog.show();
+
+				}
+			});
 		}
 
 		@Override
@@ -2671,8 +2891,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				switch (query.getString(COMMAND)){
                     case CMD_UPLOAD:
 						runOnUiThread(new Runnable() {
+
 							@Override
 							public void run() {
+
 								asyncDialog.setMessage("now uploading");
 
 							}
@@ -2692,9 +2914,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 						upObject.put(CONNECT_URL, SERVER_URL+uploadResult.getString(WEB_FILE_DIR));
 						upObject.put(WEB_FILE_DIR,uploadResult.getString(WEB_FILE_DIR));
 
-						return doInBackground(upObject);
+					return doInBackground(upObject);
 					case CMD_DOWNLOAD:
 						runOnUiThread(new Runnable() {
+
 							@Override
 							public void run() {
 								asyncDialog.setMessage("now downloading");
@@ -2714,13 +2937,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		protected void onPostExecute(JSONObject result) {
 			super.onPostExecute(result);
 			runOnUiThread(new Runnable() {
+
 				@Override
 				public void run() {
 					asyncDialog.setMessage("success");
-
+					asyncDialog.dismiss();
 				}
+
 			});
-			asyncDialog.dismiss();
+//			asyncDialog.dismiss();
 
 			int status=0;
 			try {

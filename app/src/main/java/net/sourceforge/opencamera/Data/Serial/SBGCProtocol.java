@@ -11,12 +11,11 @@ import java.nio.ByteOrder;
 
 /**
  * Created by KIMSEONHO on 2015-11-17.
+ * Simple BGC(Board) Serial Communication을 쉽게 할 수 있도록
+ * command별 interface를 구성함
  */
 public class SBGCProtocol extends ProtocolUtil {
     private static final String TAG = "SBGC_Protocol";
-    static String boardFirmware = "unknown";
-    static int boardVersion = 0;
-    public static int defaultTurnSpeed = 30;
 
     public static CommandAction action = new CommandAction();
 
@@ -92,7 +91,9 @@ public class SBGCProtocol extends ProtocolUtil {
     public static boolean BOARD_VERSION_3 = false;
 
     protected static int currentMode = 0;
-
+    static String boardFirmware = "unknown";
+    static int boardVersion = 0;
+    public static int defaultTurnSpeed = 30;
     /**
      * Requests the board information (firmware version)
      */
@@ -106,7 +107,8 @@ public class SBGCProtocol extends ProtocolUtil {
 		}
 
         // we are starting in RC Mode
-		setCurrentMode(MODE_RC);
+//		setCurrentMode(MODE_RC);
+		setCurrentMode(MODE_ANGLE);
 
         return (boardFirmware != "unknown");
     }
@@ -139,10 +141,9 @@ public class SBGCProtocol extends ProtocolUtil {
      * @param yaw
      *            [0 to 360]
      */
-    public void requestMoveGimbalTo(int roll, int pitch, int yaw) {
-        this.requestMoveGimbalTo(roll, pitch, yaw,
-                this.defaultTurnSpeed, this.defaultTurnSpeed, this.defaultTurnSpeed,
-                this.getCurrentMode());
+    public static void requestMoveGimbalTo(int roll, int pitch, int yaw) {
+        requestMoveGimbalTo(roll, pitch, yaw,
+                defaultTurnSpeed, defaultTurnSpeed, defaultTurnSpeed, currentMode);
     }
 
 
@@ -168,7 +169,7 @@ public class SBGCProtocol extends ProtocolUtil {
      * @param yawSpeed
      *            [0-???]
      */
-    public void requestMoveGimbalTo(int roll, int pitch, int yaw,
+    public static void requestMoveGimbalTo(int roll, int pitch, int yaw,
                                     int rollSpeed, int pitchSpeed, int yawSpeed, int mode) {
         ByteBuffer buff = ByteBuffer.allocate((Integer.SIZE / 8) * 7);
         buff.order(ByteOrder.LITTLE_ENDIAN);

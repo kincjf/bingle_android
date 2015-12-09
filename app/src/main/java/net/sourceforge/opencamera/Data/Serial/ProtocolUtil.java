@@ -3,7 +3,6 @@ package net.sourceforge.opencamera.Data.Serial;
 import android.util.Log;
 
 import net.sourceforge.opencamera.BluetoothController.BluetoothController;
-import net.sourceforge.opencamera.Data.Serial.Outgoing.ControlCommandStructure;
 import net.sourceforge.opencamera.Data.Serial.InComming.ProfileStructure;
 import net.sourceforge.opencamera.Data.Serial.InComming.RealtimeDataStructure;
 
@@ -14,6 +13,7 @@ import java.io.IOException;
  * Referenced by https://github.com/fxpal-polly/Android-SimpleBGC
  * All rights reserved.
  * @see SimpleBGC 2.5 serial protocol rev. 0.8
+ * 통신의 기준이 되는 Protocol 규격/값, Util 구현(byte data reader, byte data parser)
  */
 public class ProtocolUtil {
 	private static final String TAG = "ProtocolUtil";

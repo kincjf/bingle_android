@@ -9,7 +9,8 @@ import static net.sourceforge.opencamera.Data.Serial.ProtocolUtil.getConfirmValu
 
 /**
  * Created by KIMSEONHO on 2015-11-17.
- * CMD_GET_ANGLES
+ * CMD_GET_ANGLES - Information about actual RC control state
+ * It's not implement method, need to be implement!
  */
 public class ParseAngles implements ICommand {
 

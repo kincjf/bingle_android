@@ -3,6 +3,10 @@ package net.sourceforge.opencamera.Command;
 import net.sourceforge.opencamera.Data.Serial.ProtocolUtil;
 
 /**
+ * Incomming, Outgoing 명령을 command pattern으로 구현함
+ * 현재는 Outgoing Action 몀령시 parameter를 byte로 했음.
+ * 그래서 불필요한 bytebuffer를 사용하고 변환을 하고 있음. 수정 필요
+ * (generic을 잘 모르겠음, 향후 vo data를 이용할 수 있게 구현해야함)
  * Created by KIMSEONHO on 2015-11-16.
  */
 public class CommandAction {

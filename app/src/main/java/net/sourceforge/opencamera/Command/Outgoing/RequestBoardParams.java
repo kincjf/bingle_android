@@ -7,6 +7,7 @@ import static net.sourceforge.opencamera.Data.Serial.ProtocolUtil.sendCommand;
 
 /**
  * Created by KIMSEONHO on 2015-11-16.
+ * CMD_READ_PARAMS == CMD_READ_PARAMS_3 - Request parameter for board
  */
 public class RequestBoardParams implements ICommand {
 

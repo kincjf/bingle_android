@@ -12,6 +12,16 @@ import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
  * CMD_CONFIRM - confirmation of previous command
  */
 public class ParseConfirmValue implements ICommand {
+
+    /**
+     * CMD - 1u, DATA - depends on CMD
+     * Board sends confirmation on commands: A, G, P, W, etc.
+     * DATA is empty unless mentioned in command description.
+     *
+     * need to be implement more as you want!
+     * @param data
+     * @return
+     */
     @Override
     public boolean execute(byte[] data) {
         char val = ProtocolUtil.getConfirmValue(data);
