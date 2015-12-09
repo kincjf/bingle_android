@@ -12,6 +12,7 @@ import net.sourceforge.opencamera.Command.Outgoing.RequestBoardParams;
 import net.sourceforge.opencamera.Command.Outgoing.RequestChangeProfile;
 import net.sourceforge.opencamera.Command.Outgoing.RequestMotorOff;
 import net.sourceforge.opencamera.Command.Outgoing.RequestMotorOn;
+import net.sourceforge.opencamera.Command.Outgoing.RequestMoveGimbal;
 import net.sourceforge.opencamera.Command.Outgoing.RequestRealtimeData;
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
 
@@ -64,7 +65,10 @@ public class CommandFactory {
             command = new RequestMotorOn();
         } else if (key == SBGCProtocol.CMD_MOTORS_OFF) {
             command = new RequestMotorOff();
-        } else {
+        } else if (key == SBGCProtocol.CMD_CONTROL) {
+            command = new RequestMoveGimbal();
+        }
+        else {
             command = new NullCommand();
         }
 

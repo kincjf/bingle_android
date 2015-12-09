@@ -3,5 +3,6 @@
 /app/build
 /local.properties
 /.gradle
+/bingle_android.iml
 /bingle-android.iml
 /app/app.iml
