@@ -5,11 +5,14 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import net.sourceforge.opencamera.Data.Serial.SBGCProtocol;
+import net.sourceforge.opencamera.MainActivity;
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.PreferenceKeys;
 
@@ -31,7 +34,7 @@ public class BluetoothController implements BlueToothInterface {
     private BluetoothAdapter btAdapter;
 //    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
 
-    static BluetoothSPP bt;
+    private static BluetoothSPP bt;
 
 //    private static BluetoothSPP bluetooth;
     Intent intent;
@@ -46,11 +49,24 @@ public class BluetoothController implements BlueToothInterface {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         bt = new BluetoothSPP(activity);
 
+//        MyPreferenceFragment preferenceFragment = new MyPreferenceFragment();
+//
+//        final Preference pref = findPreference("preference_auto_connect");
+
+//        if( pref.getKey().equals("preference_auto_connect") ) {
+//            if( MyDebug.LOG )
+//                Log.d(TAG, "user clicked bluetooth auto connect");
+//
+//            return false;
+//        }
+
         bt.setBluetoothConnectionListener(new BluetoothConnectionListener() {
             public void onDeviceConnected(String name, String address) {
                 Toast.makeText(mActivity
                         , "Connected to " + name
                         , Toast.LENGTH_SHORT).show();
+
+                SBGCProtocol.initSBGCProtocol();
             }
 
             public void onDeviceDisconnected() {
@@ -60,16 +76,17 @@ public class BluetoothController implements BlueToothInterface {
             }
 
             public void onDeviceConnectionFailed() {
-                Log.i("Check", "Unable to connect");
+                Log.i(TAG, "Unable to connect");
             }
         });
+
         bt.setAutoConnectionListener(new BluetoothSPP.AutoConnectionListener() {
             public void onNewConnection(String name, String address) {
-                Log.i("Check", "New Connection - " + name + " - " + address);
+                Log.i(TAG, "New Connection - " + name + " - " + address);
             }
 
             public void onAutoConnectionStarted() {
-                Log.i("Check", "Auto menu_connection started");
+                Log.i(TAG, "Auto menu_connection started");
             }
         });
 
@@ -84,8 +101,24 @@ public class BluetoothController implements BlueToothInterface {
                 }
             }
         });
-        SBGCProtocol.initSBGCProtocol();
 
+        onStart();
+    }
+
+    public void onDestroy() {
+        bt.stopService();
+    }
+
+    public void onStart() {
+        if(!bt.isBluetoothEnabled()) {
+            bt.enable();
+        } else {
+            if(!bt.isServiceAvailable()) {
+                bt.setupService();
+                bt.startService(BluetoothState.DEVICE_OTHER);
+                bt.autoConnect("CAMTOOL_CINE");     // 무조건 autoconnect 되게, 나중에 preference로 바꾸기
+            }
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -127,8 +160,6 @@ public class BluetoothController implements BlueToothInterface {
     public void searchDevice(){
         Log.i(TAG, "Bluetooth Search Device");
 
-
-
         if(bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
             bt.disconnect();
         } else {
@@ -147,8 +178,8 @@ public class BluetoothController implements BlueToothInterface {
 
         }else{
             Log.i(TAG,"is not bluetooth");
-
         }
+
         return bt;
     }
 
@@ -203,7 +234,7 @@ public class BluetoothController implements BlueToothInterface {
     }
 
     //블루투스 활성화 확인
-    public boolean getIsBluetoothEanble(){
+    public boolean getIsBluetoothEnable(){
         return bt.isBluetoothEnabled();
 
     }

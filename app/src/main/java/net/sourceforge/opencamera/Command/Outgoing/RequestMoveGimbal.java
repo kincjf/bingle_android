@@ -54,6 +54,8 @@ public class RequestMoveGimbal implements ICommand {
      * 720 are two full clockwise rotations, -720 are two full counterclockwise
      * rotations.
      *
+     * RC 제어 관련 설정은 GUI 프로그램 - RC 설정에서 가능하며 작업시 제한설정사항에 대하여
+     * 알아야함. 그리고 차후에는 profile을 받아서 제한사항을 알아서 체크 할 수 있게 만드는 것이 좋음.
      * @param roll
      *            [-90 to 90]
      * @param pitch
@@ -77,40 +79,49 @@ public class RequestMoveGimbal implements ICommand {
         if (mode == ProtocolUtil.MODE_ANGLE) {
 
             int yawDelta = (yaw - oldYaw);
-            int goToYaw = 0;
+            int goToRoll = roll;
+            int goToPitch = pitch;
+            int goToYaw = yaw;        // 0;
+
+//            if (goToYaw < 0) {
+//                goToYaw = 360 - goToYaw;
+//            } else if (goToYaw > 360) {
+//                goToYaw = goToYaw - 360;
+//            }
 
             // Border Fix && direction
-            if (yawDelta <= -180) {
-                yawDelta += 360;
-            } else if (yawDelta > 180) {
-                yawDelta -= 360;
-            }
+//            if (yawDelta <= -180) {
+//                yawDelta += 360;
+//            } else if (yawDelta > 180) {
+//                yawDelta -= 360;
+//            }
 
-            if (yawDelta < 0) {
-                turnCounter -= Math.abs(yawDelta);
-            } else {
-                turnCounter += Math.abs(yawDelta);
-            }
-            if (turnCounter >= 1440)
-                turnCounter -= 1440;
-
-            // check if even or odd
-            if ((turnCounter & 1) == 0) {
-                // even...
-                if (turnCounter <= 720) {
-                    goToYaw = turnCounter % 720;
-                } else {
-                    goToYaw = (-720 + (turnCounter % 720));
-                }
-            } else {
-                // odd...
-                if (turnCounter > 720) {
-                    goToYaw = (-720 + (turnCounter % 720));
-                } else {
-                    goToYaw = turnCounter % 720;
-                }
-
-            }
+            // 2번 도는 기능은 필요 없을 것 같다.
+//            if (yawDelta < 0) {
+//                turnCounter -= Math.abs(yawDelta);
+//            } else {
+//                turnCounter += Math.abs(yawDelta);
+//            }
+//            if (turnCounter >= 1440)
+//                turnCounter -= 1440;
+//
+//            // check if even or odd
+//            if ((turnCounter & 1) == 0) {
+//                // even...
+//                if (turnCounter <= 720) {
+//                    goToYaw = turnCounter % 720;
+//                } else {
+//                    goToYaw = (-720 + (turnCounter % 720));
+//                }
+//            } else {
+//                // odd...
+//                if (turnCounter > 720) {
+//                    goToYaw = (-720 + (turnCounter % 720));
+//                } else {
+//                    goToYaw = turnCounter % 720;
+//                }
+//
+//            }
             this.sendTurnCommand(roll, pitch, goToYaw, SBGCProtocol.defaultTurnSpeed,
                     SBGCProtocol.defaultTurnSpeed, SBGCProtocol.defaultTurnSpeed, mode);
             oldYaw = yaw;

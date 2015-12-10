@@ -99,16 +99,11 @@ public class SBGCProtocol extends ProtocolUtil {
      */
     public static boolean initSBGCProtocol() {
 
-		while (boardFirmware != "unknown") {
-			requestBoardInfo();
-            wait(100);
-
-        // TODO Add a timeout
-		}
+        requestBoardInfo();
 
         // we are starting in RC Mode
 //		setCurrentMode(MODE_RC);
-		setCurrentMode(MODE_ANGLE);
+        setCurrentMode(MODE_ANGLE);
 
         return (boardFirmware != "unknown");
     }

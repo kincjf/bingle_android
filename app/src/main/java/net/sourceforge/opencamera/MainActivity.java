@@ -124,6 +124,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	private ToastBoxer take_photo_toast = new ToastBoxer();
 	private ToastBoxer on_upload_toast = new ToastBoxer();
 
+	private ToastBoxer test_toast = new ToastBoxer();
+
 	private boolean block_startup_toast = false;
     
 	// for testing:
@@ -133,6 +135,54 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	public boolean test_have_angle = false;
 	public float test_angle = 0.0f;
 	public String test_last_saved_image = null;
+
+	/**
+	 * yawAngle, pitchAngle, angleOffset, turnLeft(), turnRight(), turnUp(), turnDown()
+	 * 는 선 때문에 yaw, pitch 한계 각도를 테스트 하기 위해서 만들었음. 나중에 지울 예정
+	 */
+	int yawAngle = 0;
+	int pitchAngle = 0;
+	int angleOffset = 15;
+
+	int turnLeft() {
+		yawAngle -= angleOffset;
+		if (yawAngle < -180) {
+			yawAngle = -180;
+		}
+
+		preview.showToast(test_toast, "turnLeft. yawAngle : " + yawAngle);
+		return yawAngle;
+	}
+
+	int turnRight() {
+		yawAngle += angleOffset;
+		if (yawAngle > 540) {
+			yawAngle = 540;
+		}
+
+		preview.showToast(test_toast, "turnRight. yawAngle: " + yawAngle);
+		return yawAngle;
+	}
+
+	int turnUp() {
+		pitchAngle += angleOffset;
+		if (pitchAngle > 90) {
+			pitchAngle = 90;
+		}
+
+		preview.showToast(test_toast, "turnUp. pitchAngle: " + pitchAngle);
+		return pitchAngle;
+	}
+
+	int turnDown() {
+		pitchAngle -= angleOffset;
+		if (pitchAngle < -90) {
+			pitchAngle = -90;
+		}
+
+		preview.showToast(test_toast, "turnDown. pitchAngle: " + pitchAngle);
+		return pitchAngle;
+	}
 
 	private BackPressCloseHandler backPressCloseHandler;
 
@@ -144,7 +194,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
     	long time_s = System.currentTimeMillis();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		blueCtrl = new BluetoothController(this,mHandler);		// singleton으로 선언하기, 버그 생김
+		blueCtrl = new BluetoothController(this, mHandler);		// singleton으로 선언하기, 버그 생김
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		if( getIntent() != null && getIntent().getExtras() != null ) {
@@ -318,6 +368,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
 	}
 
+
+	public BluetoothController getBlueCtrl() {
+		if (this.blueCtrl == null) {
+			blueCtrl = new BluetoothController(this, mHandler);
+		}
+
+		return blueCtrl;
+	}
+
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -330,8 +389,6 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 
 	};
-
-
 	
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	private void initCamera2Support() {
@@ -394,9 +451,10 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	    	textToSpeech.shutdown();
 	    	textToSpeech = null;
 	    }
-	    super.onDestroy();
+
 		//블루투스 서비스 정지
-		blueCtrl.stopService();
+		blueCtrl.onDestroy();
+	    super.onDestroy();
 	}
 	
 	@Override
@@ -526,7 +584,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		 * 블루투스 리모콘(GameMode) 관련 KeyEvent 처리
 		 * ----------- START ------------
 		 */
-		case KeyEvent.KEYCODE_DPAD_UP:
+		case KeyEvent.KEYCODE_DPAD_UP:		// gimbal right
 			{
 				//리모콘 세로 방향의 RIGHT버튼
 				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
@@ -544,9 +602,9 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 				return true;
 			}
-		case KeyEvent.KEYCODE_DPAD_DOWN:
+		case KeyEvent.KEYCODE_DPAD_DOWN:		// gimbal left
 			{
-				//리모콘 세로 방향의 LEFT버튼
+//				//리모콘 세로 방향의 LEFT버튼
 				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
@@ -562,38 +620,39 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 				return true;
 			}
-		case KeyEvent.KEYCODE_DPAD_LEFT:
+		case KeyEvent.KEYCODE_DPAD_LEFT:		// gimbal up
 			{
-				//리모콘 세로 방향의 UP버튼
-				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
+//				//리모콘 세로 방향의 UP버튼
+//				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
-					sbgcProtocol.requestMoveGimbalTo(0, 10, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, 50, 0);
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}else {
-					sbgcProtocol.requestMoveGimbalTo(0, 20, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, 30, 0);
 				}
 
 				return true;
 			}
-		case KeyEvent.KEYCODE_DPAD_RIGHT:
+		case KeyEvent.KEYCODE_DPAD_RIGHT:		// gimbal down
 			{
-				//리모콘 세로 방향의 DOWN버튼
+				// test때문에 잠깐 지웠음. 다시 살릴 예정
+//				//리모콘 세로 방향의 DOWN버튼
 				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
-					sbgcProtocol.requestMoveGimbalTo(0, -20, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, -50, 0);
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}else {
-					sbgcProtocol.requestMoveGimbalTo(0, -10, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, -30, 0);
 				}
 
 				return true;
@@ -1169,7 +1228,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	 * 나중에 controller쪽으로 빼자
 	 * 나중에 정지 할 수 있게 만들기
 	 */
-    public void takeSphericalPhoto() {
+    public void takeSphericalPhoto(){
 		if( MyDebug.LOG )
 			Log.d(TAG, "takeSphericalPhoto");
 
@@ -1177,7 +1236,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			applicationInterface.chooseFolder();
 		}
 
-		if (!blueCtrl.getIsBluetoothEanble()) {
+		if (!blueCtrl.getIsBluetoothEnable()) {
 			Log.e(TAG, "Cannot take spherical panorama : bluetooth isn't connect");
 			return;
 		}
@@ -1190,10 +1249,15 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				}
 				SBGCProtocol.setCurrentMode(SBGCProtocol.MODE_ANGLE);
 
-				for (int i=-45; i<90; i+=90){
+				int loop = 0, tmp = 0;
+				int spinDirection = 1;		// 1 : 시계방향, -1 : 반시계방향
+				int yawSpinLimit1 = 90;
+				int yawSpinLimit2 = 90;
+
+				for (int i = -60; i < 60; i += 30){		// pitch
 					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
 
-					for (int k = 0;k<360;k+=30){
+					for (int k = yawSpinLimit1;k <= yawSpinLimit2;k += (45 * spinDirection)) {		// yaw
 
 						if (!panorama_start) {
 							Log.d(TAG, "Taking spherical panorama action has stoped");
@@ -1201,19 +1265,35 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 							return;
 						}
 
+						++loop;
+
 						SBGCProtocol.requestMoveGimbalTo(0, i, k);
 
+						if (loop == 1) {
+							try {
+								Thread.sleep(1500);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+
 						try {
-							Thread.sleep(1000);
+							Thread.sleep(2000);
 
 							takePicture();
 
-							Thread.sleep(1000);
+							Thread.sleep(2000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
 
 					}
+
+					spinDirection *= -1;
+
+					yawSpinLimit1 = tmp;
+					yawSpinLimit1 = yawSpinLimit2;
+					yawSpinLimit2 = tmp;
 
 				}
 
@@ -1320,7 +1400,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 			blueCtrl = new BluetoothController(this, mHandler);
 		}
 
-		if(blueCtrl.getIsBluetoothEanble()){
+		if(blueCtrl.getIsBluetoothEnable()){
 			blueCtrl.searchDevice();
 
 		}else {

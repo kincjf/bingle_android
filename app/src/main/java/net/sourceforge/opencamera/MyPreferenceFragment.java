@@ -633,7 +633,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 						if( MyDebug.LOG )
 							Log.d(TAG, "user clicked bluetooth auto connect");
 
-
 						return false;
 					}
 					return false;
