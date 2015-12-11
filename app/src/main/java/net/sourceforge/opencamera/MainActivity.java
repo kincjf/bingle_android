@@ -590,14 +590,14 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()){
-					sbgcProtocol.requestMoveGimbalTo(0 , 0, 90);
+					sbgcProtocol.requestMoveGimbalTo(0 , 0, -90);
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}else {
-					sbgcProtocol.requestMoveGimbalTo(0, 0, 50);
+					sbgcProtocol.requestMoveGimbalTo(0, 0, -50);
 				}
 
 				return true;
@@ -608,14 +608,14 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
-					sbgcProtocol.requestMoveGimbalTo(0, 0, -90);
+					sbgcProtocol.requestMoveGimbalTo(0, 0, 90);
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}else{
-					sbgcProtocol.requestMoveGimbalTo(0, 0, -50);
+					sbgcProtocol.requestMoveGimbalTo(0, 0, 50);
 				}
 
 				return true;
@@ -626,14 +626,14 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 //				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
-					sbgcProtocol.requestMoveGimbalTo(0, 50, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, -50, 0);
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}else {
-					sbgcProtocol.requestMoveGimbalTo(0, 30, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, -30, 0);
 				}
 
 				return true;
@@ -645,14 +645,14 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				sbgcProtocol.setCurrentMode(sbgcProtocol.MODE_RC); //RC MODE
 
 				if(event.isLongPress()) {
-					sbgcProtocol.requestMoveGimbalTo(0, -50, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, 50, 0);
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}else {
-					sbgcProtocol.requestMoveGimbalTo(0, -30, 0);
+					sbgcProtocol.requestMoveGimbalTo(0, 30, 0);
 				}
 
 				return true;
@@ -1249,15 +1249,18 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 				}
 				SBGCProtocol.setCurrentMode(SBGCProtocol.MODE_ANGLE);
 
-				int loop = 0, tmp = 0;
+				int loop = 0, tmp = 0, i, k;
 				int spinDirection = 1;		// 1 : 시계방향, -1 : 반시계방향
-				int yawSpinLimit1 = 90;
+				int yawSpinLimit1 = -90;
 				int yawSpinLimit2 = 90;
 
-				for (int i = -60; i < 60; i += 30){		// pitch
+
+
+
+				for (i = -60; i < 60; i += 30){		// pitch
 					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
 
-					for (int k = yawSpinLimit1;k <= yawSpinLimit2;k += (45 * spinDirection)) {		// yaw
+					for (k = yawSpinLimit1; k <= yawSpinLimit2; k += (45 * spinDirection)) {		// yaw
 
 						if (!panorama_start) {
 							Log.d(TAG, "Taking spherical panorama action has stoped");
@@ -1287,15 +1290,16 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 							e.printStackTrace();
 						}
 
+						Log.d(TAG, "SphericalPhoto values : i = "+i+" k = "+k+" spinDirection = "+spinDirection+" yawSpinLimt1 = "+yawSpinLimit1+" yawSpinLimit2 = "+yawSpinLimit2);
+
 					}
-
-					spinDirection *= -1;
-
-					yawSpinLimit1 = tmp;
+/*
+					tmp = yawSpinLimit1;
 					yawSpinLimit1 = yawSpinLimit2;
 					yawSpinLimit2 = tmp;
-
+*/
 				}
+
 
 				doUpload();
 			synchronized (this) {

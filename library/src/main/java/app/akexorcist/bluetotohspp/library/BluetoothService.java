@@ -358,7 +358,6 @@ public class BluetoothService {
 
                 try {
 
-//                    Thread.sleep(20);
                     byte[] readData = read();
                     if(readData.length>2){
 
@@ -368,6 +367,8 @@ public class BluetoothService {
                             continue;
                         }
                         mHandler.obtainMessage(BluetoothState.MESSAGE_READ, readData.length, -1, readData).sendToTarget();
+
+                        Thread.sleep(20);
                     }
                 }catch (Exception e){
                     connectionLost();

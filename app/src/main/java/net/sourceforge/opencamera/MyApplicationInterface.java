@@ -30,6 +30,7 @@ import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
@@ -2903,7 +2904,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 
 		String path = sharedPreferences.getString(PreferenceKeys.getSaveLocationPreferenceKey(), "");
-		return (path==null)?false:true;
+		return (TextUtils.isEmpty((path)))?false:true;
 
 	}
 	void removeSavePath(){
@@ -2920,7 +2921,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		File f = new File(folderPath);
 		File zipFolder = new File(IMG_ZIP_DIR);
 		String zipName = IMG_ZIP_DIR+f.getName()+".zip";
-//		String zipName = IMG_ZIP_DIR+"test";
+
 
 		if( !zipFolder.exists())
 			zipFolder.mkdir();
@@ -2930,7 +2931,7 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		folderDelete(folderPath);
+		folderDelete(folderPath);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 
@@ -3078,6 +3079,15 @@ public class MyApplicationInterface implements ApplicationInterface,JSONCommandI
 
 			if (connection != null)
 				connection.disconnect();
+
+			// 사진이 저장 될때마다 갤러리 갱신
+			if(!TextUtils.isEmpty(imgName)){
+				Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+				File f = new File(BINGLE_IMG_DIR+imgName);
+				Uri contentUri = Uri.fromFile(f);
+				mediaScanIntent.setData(contentUri);
+				main_activity.sendBroadcast(mediaScanIntent);
+			}
 
 			try {
 				if(resultObject.isNull(STATUS)){
