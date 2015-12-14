@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,11 +33,9 @@ public class BluetoothController implements BlueToothInterface {
     private Activity mActivity;
     private Handler mHandler;
     private BluetoothAdapter btAdapter;
-//    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
 
     private static BluetoothSPP bt;
 
-//    private static BluetoothSPP bluetooth;
     Intent intent;
 
     private static final int REQUEST_ENABLE_BT = 2;
@@ -48,17 +47,6 @@ public class BluetoothController implements BlueToothInterface {
         // BluetoothAdapter 얻기
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         bt = new BluetoothSPP(activity);
-
-//        MyPreferenceFragment preferenceFragment = new MyPreferenceFragment();
-//
-//        final Preference pref = findPreference("preference_auto_connect");
-
-//        if( pref.getKey().equals("preference_auto_connect") ) {
-//            if( MyDebug.LOG )
-//                Log.d(TAG, "user clicked bluetooth auto connect");
-//
-//            return false;
-//        }
 
         bt.setBluetoothConnectionListener(new BluetoothConnectionListener() {
             public void onDeviceConnected(String name, String address) {
@@ -127,22 +115,7 @@ public class BluetoothController implements BlueToothInterface {
             if(resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "Bluetooth Device Connect");
                 bt.connect(data);
-/*
-                deviceName = main_activity.getBluetoothConnectDeviceName();
 
-                if (deviceName != null) {
-                    if( MyDebug.LOG )
-                        Log.d(TAG, "bluetooth connect device name : " + deviceName);
-
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString(PreferenceKeys.getBluetoothDeviceListPreferenceKey(), deviceName);
-                    editor.apply();
-
-                }else {
-                    if( MyDebug.LOG )
-                        Log.d(TAG, "no bluetooth connect device name");
-                }
- */
             }
         } else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
             if(resultCode == Activity.RESULT_OK) {
@@ -174,10 +147,10 @@ public class BluetoothController implements BlueToothInterface {
 
     public static BluetoothSPP getBluetooth() {
         if(bt!= null){
-            Log.i(TAG,"is bluetooth");
+            Log.i(TAG, "is bluetooth");
 
         }else{
-            Log.i(TAG,"is not bluetooth");
+            Log.i(TAG, "is not bluetooth");
         }
 
         return bt;
@@ -239,14 +212,20 @@ public class BluetoothController implements BlueToothInterface {
 
     }
 
-    //연결된 블루투스 장비 이름 가져오기
-    public String getBluetoothConnectDeviceName() {
-        return bt.getConnectedDeviceName();
-    }
-
     //블루투스 서비스 중지
     public void stopService(){
         bt.stopService();
+    }
+
+    //블루투스 AutoConnect Start
+    public void autoConnectStart(String deviceName){
+        if(!TextUtils.isEmpty(deviceName))
+            bt.autoConnect(deviceName);
+    }
+
+    //블루투스 AutoConnect Stop
+    public void autoConnectStop(){
+        bt.stopAutoConnect();
     }
 
     @Override

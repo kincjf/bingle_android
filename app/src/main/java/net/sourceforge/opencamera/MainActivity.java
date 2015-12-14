@@ -36,6 +36,7 @@ import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.GestureDetector;
@@ -366,6 +367,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 		if( MyDebug.LOG )
 			Log.d(TAG, "time for Activity startup: " + (System.currentTimeMillis() - time_s));
+
 	}
 
 
@@ -738,6 +740,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		super.onStart();
 		//어플 실행시 블루투스 활성화 확인
 		blueCtrl.enableBluetooth();
+
 	}
 	
 	void setSeekbarZoom() {
@@ -1251,16 +1254,17 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 				int loop = 0, tmp = 0, i, k;
 				int spinDirection = 1;		// 1 : 시계방향, -1 : 반시계방향
-				int yawSpinLimit1 = -90;
-				int yawSpinLimit2 = 90;
+				int yawSpinLimit1 = -160;
+				int yawSpinLimit2 = 160;
 
 
 
 
-				for (i = -60; i < 60; i += 30){		// pitch
+				for (i = -75; i < 75; i += 30){		// pitch
 					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
 
-					for (k = yawSpinLimit1; k <= yawSpinLimit2; k += (45 * spinDirection)) {		// yaw
+					for (k = yawSpinLimit1; k <= yawSpinLimit2; k += (40
+							* spinDirection)) {		// yaw
 
 						if (!panorama_start) {
 							Log.d(TAG, "Taking spherical panorama action has stoped");
@@ -1392,7 +1396,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
     }
 
-	//블루투스 설정에서 블루투스 장비 검색 할때 사용
+	//블루투스 설정 - 블루투스 장비 검색 할때 사용
 	public void bluetoothSearchDevice(){
 		if (MyDebug.LOG)
 			Log.d(TAG, "bluetoothSearchDevice");
@@ -1413,10 +1417,16 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		}
 	}
 
-	// 블루투스 설정에서 사용
-	// 연결된 블루투스 장비 이름 가져오기
-	public String getBluetoothConnectDeviceName(){
-		return blueCtrl.getBluetoothConnectDeviceName();
+	//블루투스 설정 - 블루투스 AutoConnect 에서 사용
+	public void bluetoothAutoConnect(String autoCheck){
+		if (MyDebug.LOG)
+			Log.d(TAG, "bluetoothAutoConnect");
+
+		if(autoCheck == "true"){
+			blueCtrl.autoConnectStart("CAMTOOL_CINE");
+		}else if(autoCheck == "false") {
+			blueCtrl.autoConnectStop();
+		}
 	}
 
     public void setPopupIcon() {

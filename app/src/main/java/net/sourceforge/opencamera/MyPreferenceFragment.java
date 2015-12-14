@@ -27,6 +27,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
@@ -632,6 +633,17 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 					if( pref.getKey().equals("preference_auto_connect") ) {
 						if( MyDebug.LOG )
 							Log.d(TAG, "user clicked bluetooth auto connect");
+
+						MainActivity main_activity = (MainActivity)MyPreferenceFragment.this.getActivity();
+
+						boolean switched = ((SwitchPreference) pref).isChecked();
+						if(switched){
+							main_activity.bluetoothAutoConnect("true");
+
+						} else {
+							main_activity.bluetoothAutoConnect("false");
+
+						}
 
 						return false;
 					}
