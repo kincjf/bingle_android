@@ -1254,16 +1254,16 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 				int loop = 0, tmp = 0, i, k;
 				int spinDirection = 1;		// 1 : 시계방향, -1 : 반시계방향
-				int yawSpinLimit1 = -160;
-				int yawSpinLimit2 = 160;
+				int yawSpinLimit1 = -90;
+				int yawSpinLimit2 = 90;
 
 
 
 
-				for (i = -75; i < 75; i += 30){		// pitch
+				for (i = -70; i < 70; i += 20){		// pitch
 					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
 
-					for (k = yawSpinLimit1; k <= yawSpinLimit2; k += (40
+					for (k = yawSpinLimit1; k <= yawSpinLimit2; k += (30
 							* spinDirection)) {		// yaw
 
 						if (!panorama_start) {
@@ -2955,7 +2955,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	}
 
 	class Http extends AsyncTask<JSONObject,JSONObject,JSONObject>{
-		final String SERVER_URL = "http://bingle.pastelplus.com:8080/";
+		final String SERVER_URL = "http://192.168.0.14:8080/";
 		final String UPLOAD_ZIP_URL = SERVER_URL+"upload/";
 
 		ProgressDialog asyncDialog;
