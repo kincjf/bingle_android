@@ -484,7 +484,16 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 	    		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	    		String volume_keys = sharedPreferences.getString(PreferenceKeys.getVolumeKeysPreferenceKey(), "volume_take_photo");
 	    		if( volume_keys.equals("volume_take_photo") ) {
-	            	takePicture();
+					if(!bDoubleCheck){
+						if( event.getRepeatCount() == 0 ) {
+							takePicture();
+						}
+						bDoubleCheck = true;
+						mHandler.sendEmptyMessageDelayed(0, 1500);
+						return true;
+					} else {
+						takeSphericalPhoto();		// 더블 클릭하면 spherical panorama가 찍히게 함
+					}
 	                return true;
 	    		}
 	    		else if( volume_keys.equals("volume_focus") ) {
@@ -1304,8 +1313,8 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 */
 				}
 
-
-				doUpload();
+				// 서버에 촬영한 이미지들을 압축해서 업로드하고 서버에서 변환된 파일을 다운받음
+				// doUpload();
 			synchronized (this) {
 					panorama_start = false;
 				}
