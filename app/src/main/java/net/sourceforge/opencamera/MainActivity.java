@@ -36,7 +36,6 @@ import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.GestureDetector;
@@ -1244,35 +1243,46 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 		if( MyDebug.LOG )
 			Log.d(TAG, "takeSphericalPhoto");
 
-		if(!applicationInterface.isSaveFolder()){
-			applicationInterface.chooseFolder();
+		//if(!applicationInterface.isSaveFolder())
+		{
+			Log.d(TAG, "chooseFolder");
 		}
-
+		/*
+			isSaveFolder 메소드 호출하지 않음.
+		 */
 		if (!blueCtrl.getIsBluetoothEnable()) {
 			Log.e(TAG, "Cannot take spherical panorama : bluetooth isn't connect");
 			return;
 		}
-
+		final MainActivity test = this;
 	final Thread backThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				synchronized (this) {
+					if(panorama_start==false) applicationInterface.chooseFolder();
+					/*
+						매번 파라노마 사진 찍을 때마다 chooseFolder 메소드 호출. 이때만 폴더를 생성시킴.
+						원래 저장하던 폴더와 달리 현재 시간을 기준으로 다시 생성함,.
+
+						panorama_start의 값이 false일때만 작동하기 때문에, 파노라마 촬영이 다끝나기 전까지는 chooseFolder 메소드가 호출되지 않음.
+						아래서 panorama_start의 값이 false로 바뀌도록 되어있음.
+
+					 */
 					panorama_start = true;
 				}
 				SBGCProtocol.setCurrentMode(SBGCProtocol.MODE_ANGLE);
 
 				int loop = 0, tmp = 0, i, k;
 				int spinDirection = 1;		// 1 : 시계방향, -1 : 반시계방향
-				int yawSpinLimit1 = -90;
-				int yawSpinLimit2 = 90;
+				int yawSpinLimit1 = -130;
+				int yawSpinLimit2 = 130;
 
 
 
-
-				for (i = -70; i < 70; i += 20){		// pitch
+				for (i = -90; i < 90; i += 20){		// pitch
 					preview.showToast(take_photo_toast, R.string.taking_panorama_photo);
 
-					for (k = yawSpinLimit1; k <= yawSpinLimit2; k += (30
+					for (k = yawSpinLimit1; k <= yawSpinLimit2; k += (20
 							* spinDirection)) {		// yaw
 
 						if (!panorama_start) {
@@ -3002,7 +3012,7 @@ public class MainActivity extends Activity implements JSONCommandInterface{
 
 							}
 						});
-						onProgressUpdate();
+						//onProgressUpdate();
 
 
 						JSONObject uploadResult= applicationInterface.bingleUpload(UPLOAD_ZIP_URL, query.getString(FILE_PATH));
